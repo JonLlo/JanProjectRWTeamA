@@ -34,7 +34,7 @@ public class BankSystem {
 
         switch (menuChoice) {
             case "1": IO.println("authenticateCustomer()"); break;
-            case "2": IO.println("createCustomer()"); break;
+            case "2": createCustomer(); break;
             case "3": IO.println("showMainHelp()"); break;
             case "4": IO.println("saveDataToCSV()"); running = false; break;
             default: IO.println("Invalid choice.");
@@ -60,6 +60,23 @@ public class BankSystem {
     private void createCustomer() {
         /* Here we want to write a function to create a customer. This is called when someone
         types '2' on the start menu */
+
+        IO.print("Enter Customer ID: ");
+        String customerId = inputScanner.nextLine();
+
+        if (customerMap.containsKey(customerId)) {
+            IO.println("Customer ID already exists.");
+            return;
+        }
+
+        IO.print("Enter Customer Name: ");
+        String customerName = inputScanner.nextLine();
+
+        customerMap.put(customerId, new Customer(customerId, customerName));
+        Logger.log("NEW CUSTOMER CREATED: " + customerId);
+
+        IO.println("Customer created successfully.");
+        saveDataToCSV();
     }
     private void showMainHelp() {
        /* Here we want to write a function to create a customer. This is called when someone
