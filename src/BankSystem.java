@@ -48,6 +48,10 @@ public class BankSystem {
     }
 }
     private void authenticateCustomer() {
+
+        //test
+
+    }
         /* Here we want to write a function to authenticate a customer. This is called when someone
             types '1' on the start menu */
         /* We will then want to call a function "CustomerMenu()" which will take user to the customer menu */
@@ -64,6 +68,7 @@ public class BankSystem {
         IO.print("Enter Customer ID: ");
         String customerId = inputScanner.nextLine();
 
+        if (customerMap.containsKey(customerId)) {
         if (customerMap.containsKey(customerId)) {
             IO.println("Customer ID already exists.");
             return;
