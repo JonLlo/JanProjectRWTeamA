@@ -33,7 +33,7 @@ public class BankSystem {
         String menuChoice = inputScanner.nextLine();
 
         switch (menuChoice) {
-            case "1": IO.println("authenticateCustomer()"); break;
+            case "1": authenticateCustomer(); break;
             case "2": createCustomer(); break;
             case "3": IO.println("showMainHelp()"); break;
             case "4": IO.println("saveDataToCSV()"); running = false; break;
@@ -49,7 +49,11 @@ public class BankSystem {
 }
     private void authenticateCustomer() {
 
-        //test
+        //Jonny
+        IO.println("Please enter your customer ID");
+        String customerID = inputScanner.nextLine();
+        //if hashmap contains customerID {
+
 
     }
         /* Here we want to write a function to authenticate a customer. This is called when someone
