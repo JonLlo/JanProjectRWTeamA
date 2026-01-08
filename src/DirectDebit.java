@@ -12,5 +12,6 @@ public class DirectDebit {
 
     public String getPayeeName() (return payeeName;)
 
-    public String toString() {return "Direct Debit to " + payeeName + " | Amount: " + String.format("£%.2f", amount);}
+    public String toString() {
+        return "Direct Debit to " + payeeName + " | Amount: " + String.format("£%.2f", amount);}
 }
