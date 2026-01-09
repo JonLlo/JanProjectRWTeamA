@@ -10,7 +10,7 @@ public class Logger {
     public static void main(String[] args) {
         log("Logger is working");
     }
-
+    //produces date format
     public static void log(String message) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
