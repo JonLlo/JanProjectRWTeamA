@@ -11,42 +11,42 @@ public class BankSystem {
     /*The following constructor "public BankSystem()" will run whenever a new object of the class BankSystem is created:
     i.e. when "BankSystem bank = new BankSystem();" is called */
     public BankSystem() {
-         //IO.println("\n=== Bank System has been called! ===");
+        //IO.println("\n=== Bank System has been called! ===");
 
     }
     public void start() {
         boolean running = true;
         while (running) {
-        IO.println("========================================\n" +
-                "       ACME BANK System\n" +
-                "========================================");
-        IO.println("Please select an option:");
-        IO.println("1. Authenticate Customer");
-        IO.println("2. Create New Customer");
-        IO.println("3. Help");
-        IO.println("4. Exit");
+            IO.println("========================================\n" +
+                    "       ACME BANK System\n" +
+                    "========================================");
+            IO.println("Please select an option:");
+            IO.println("1. Authenticate Customer");
+            IO.println("2. Create New Customer");
+            IO.println("3. Help");
+            IO.println("4. Exit");
 
-        IO.println("Tip: You can type help at any time for assistance.");
+            IO.println("Tip: You can type help at any time for assistance.");
 
-        IO.print("Enter Option number: ");
+            IO.print("Enter Option number: ");
 
-        String menuChoice = inputScanner.nextLine();
+            String menuChoice = inputScanner.nextLine();
 
-        switch (menuChoice) {
-            case "1": IO.println("authenticateCustomer()"); break;
-            case "2": createCustomer(); break;
-            case "3": IO.println("showMainHelp()"); break;
-            case "4": IO.println("saveDataToCSV()"); running = false; break;
-            default: IO.println("Invalid choice.");
+            switch (menuChoice) {
+                case "1": IO.println("authenticateCustomer()"); break;
+                case "2": createCustomer(); break;
+                case "3": IO.println("showMainHelp()"); break;
+                case "4": IO.println("saveDataToCSV()"); running = false; break;
+                default: IO.println("Invalid choice.");
+            }
+
+
+
+
+
+
         }
-
-
-
-
-
-
     }
-}
     private void authenticateCustomer() {
         /* Here we want to write a function to authenticate a customer. This is called when someone
             types '1' on the start menu */
