@@ -6,6 +6,7 @@ public class Logger {
 
     private static final String LOG_FILE = "bank_log.txt";
 
+    //needed main for testing
     public static void main(String[] args) {
         log("Logger is working");
     }
