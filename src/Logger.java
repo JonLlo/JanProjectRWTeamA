@@ -7,7 +7,7 @@ public class Logger {
     private static final String LOG_FILE = "bank_log.txt";
 
     //needed main for testing
-    public static void main(String[] args) {
+    public static void main() {
         log("Logger is working");
     }
     //produces date format
