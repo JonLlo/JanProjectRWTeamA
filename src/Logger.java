@@ -1,19 +1,19 @@
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.io.*;
 
 public class Logger {
-    //needed main to run it separately
-    // change main/log when all the files are done
+
     private static final String LOG_FILE = "bank_log.txt";
+
     public static void main(String[] args) {
-        log("Logger is running");
+        log("Logger is working");
     }
 
     public static void log(String message) {
-        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(new Date());
-        System.out.println(time + " - " + message);
+        try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
+            String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            writer.println("[" + time + "] " + message);
+        } catch (Exception ignored) {}
     }
 }
-
