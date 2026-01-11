@@ -49,6 +49,8 @@ public class BankSystem {
 
     }
 }
+
+
     private void authenticateCustomer() {
         //DONE BUT NEED TO UNCOMMENT SOME STUFF ONCE EVERYTHING IS PUSHED TO MAIN
         //Jonny
@@ -128,12 +130,15 @@ public class BankSystem {
         }
         private String helpOnInput() {
                 //makes it so any time in the application if someone types help, the help menu comes up.
-            String input = inputScanner.nextLine().trim();
+            String input = inputScanner.nextLine();
             if (input.equalsIgnoreCase("help")) {
-                showMainHelp();  // show main help
-                return getInputWithHelp(); // ask again after showing help
+                showMainHelp();  // show the main help
+                return getInputWithHelp(); // recursively ask again
             }
             return input;
+/*
+            //We need to replace every instance of: "scanner" with String xyz = helpOnInput()
+*/
         }
 
 
