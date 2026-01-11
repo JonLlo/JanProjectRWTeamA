@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class LoadCSV {
 
-    public static void main(String[] args) {
+    public static void main() {
         loadDataFromCSV();
     }
 
