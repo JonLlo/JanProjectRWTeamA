@@ -35,7 +35,7 @@ public class BankSystem {
         switch (menuChoice) {
             case "1": authenticateCustomer(); break;
             case "2": createCustomer(); break;
-            case "3": IO.println("showMainHelp()"); break;
+            case "3": showMainHelp(); break;
             case "4": IO.println("saveDataToCSV()"); running = false; break;
             default: IO.println("Invalid choice.");
         }
@@ -50,7 +50,7 @@ public class BankSystem {
     }
 }
     private void authenticateCustomer() {
-
+        //DONE BUT NEED TO UNCOMMENT SOME STUFF ONCE EVERYTHING IS PUSHED TO MAIN
         //Jonny
         IO.println("Please enter your customer ID");
         String customerID = inputScanner.nextLine();
@@ -109,11 +109,36 @@ public class BankSystem {
         IO.println("Customer created successfully.");
         saveDataToCSV();
     }
+
+
     private void showMainHelp() {
-       /* Here we want to write a function to create a customer. This is called when someone
+       /* Here we want to write a function to show main help. This is called when someone
         types '3' on the start menu. It also, as per the brief, needs to be called anytime someone types 'help'
         ANYWHERE in the application*/
-    }
+
+                IO.println("\n=== HELP: MAIN MENU ===");
+                IO.println("1. Authenticate Customer - Log in using a valid Customer ID.");
+                IO.println("2. Create Customer      - Add a new customer with unique ID.");
+                IO.println("3. Help                 - Show instructions and rules.");
+                IO.println("4. Exit                 - Save all data and quit the program.");
+                IO.println("\nNotes:");
+                IO.println("- Customer IDs must be unique.");
+                IO.println("- Data is saved automatically on exit.");
+
+        }
+        private String helpOnInput() {
+                //makes it so any time in the application if someone types help, the help menu comes up.
+            String input = inputScanner.nextLine().trim();
+            if (input.equalsIgnoreCase("help")) {
+                showMainHelp();  // show main help
+                return getInputWithHelp(); // ask again after showing help
+            }
+            return input;
+        }
+
+
+
+
     private void saveDataToCSV() {
         /*Here we want to write a function that saves all the data to the CSV (essentially the hashmap but in plain text).
         And we want to run this just before the program is exited (when someone types '4')
@@ -137,6 +162,8 @@ public class BankSystem {
             String choice = inputScanner.nextLine();
 
             switch (choice) {
+
+                //done but need to uncomment functions once they are made.
                 //below are all functions we need to define later on
                 case "1": //loggedInCustomer.viewAccounts() //break;
                     //"ViewAccounts" method needs to be defined in customer class.
