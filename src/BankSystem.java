@@ -45,13 +45,13 @@ public class BankSystem {
 
     private void authenticateCustomer() {
         System.out.println("authenticateCustomer() called");
-        // Stub: would normally check login
-        customerMenu(); // demo navigation
+        // normally check login
+        customerMenu(); // add later
     }
 
     private void createCustomer() {
         System.out.println("createCustomer() called");
-        // Stub: normally get input and create Customer object
+        // input and create Customer object
         System.out.print("Enter Customer ID: ");
         String customerId = inputScanner.nextLine();
         System.out.print("Enter Customer Name: ");
@@ -110,13 +110,13 @@ public class BankSystem {
         }
     }
 
-    // Stubs for future functionality
+    // future functionality
     private void openNewAccount() {}
     private void performDeposit() {}
     private void performWithdrawal() {}
     private void managePayments() {}
 
-    public static void main(String[] args) {
+    public static void main() {
         BankSystem bankSystem = new BankSystem();
         bankSystem.start();
     }
