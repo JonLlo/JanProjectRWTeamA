@@ -45,6 +45,8 @@ public class BankSystem {
 
 
 
+
+
     }
 }
     private void authenticateCustomer() {
@@ -52,6 +54,23 @@ public class BankSystem {
         //Jonny
         IO.println("Please enter your customer ID");
         String customerID = inputScanner.nextLine();
+        if (!this.customerMap.containsKey(customerId)) {
+            IO.println("Customer ID does not exist.")
+            //Logger.log("Failed authentication: " + customerId) Wait for logger class to be created to uncomment this
+
+        }
+        else {
+            //Not quite sure which of the below two is needed.
+            this.loggedInCustomer = this.customerMap.get(customerId)
+            //this.loggedInCustomer = (Customer)this.customerMap.get(customerId);
+            //Logger.log("Success: " + customerId) Wait for logger class to be created to uncomment this
+
+            this.customerMenu();
+
+
+        }
+
+
         //if hashmap contains customerID {
 
 
@@ -59,6 +78,9 @@ public class BankSystem {
         /* Here we want to write a function to authenticate a customer. This is called when someone
             types '1' on the start menu */
         /* We will then want to call a function "CustomerMenu()" which will take user to the customer menu */
+
+
+
 
 
         //some code then:
