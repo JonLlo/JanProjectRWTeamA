@@ -6,11 +6,6 @@ public class Logger {
 
     private static final String LOG_FILE = "bank_log.txt";
 
-    //needed main for testing
-    public static void main() {
-        log("Logger is working");
-    }
-    //produces date format
     public static void log(String message) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
