@@ -63,7 +63,7 @@ public class BankSystem {
         }
         else {
             //Not quite sure which of the below two is needed.
-            this.loggedInCustomer = this.customerMap.get(customerId)
+             this.loggedInCustomer = this.customerMap.get(customerId)
             //this.loggedInCustomer = (Customer)this.customerMap.get(customerId);
             //Logger.log("Success: " + customerId) Wait for logger class to be created to uncomment this
 
@@ -141,6 +141,21 @@ public class BankSystem {
 */
         }
 
+        private void showCustomerHelp() {
+            IO.println("\n=== HELP: CUSTOMER MENU ===");
+            IO.println("1. View Accounts   - List all accounts for this customer.");
+            IO.println("2. Open Account    - Create a new account. Rules:");
+            IO.println("    • Personal Account: Minimum £1 opening balance, multiple allowed.");
+            IO.println("    • ISA Account: Only 1 per customer.");
+            IO.println("    • Business Account: Only 1 per customer, restricted types.");
+            IO.println("3. Deposit         - Add funds to a selected account. Amount must be > 0.");
+            IO.println("4. Withdraw        - Remove funds from a selected account. Cannot exceed balance.");
+            IO.println("5. Help            - Show this help message.");
+            IO.println("6. Switch Customer - Log out and authenticate a different customer.");
+            IO.println("\nNotes:");
+            IO.println("- All transactions are logged with timestamps.");
+            IO.println("- Account numbers are unique and required for selecting accounts.");
+        }
 
 
 
@@ -176,7 +191,7 @@ public class BankSystem {
                 case "3": //performDeposit(); break;
                 case "4": //performWithdrawal(); break;
                 case "5": //managePayments(); break;
-                case "6": //showCustomerHelp(); break;
+                case "6": showCustomerHelp(); break;
                 case "7": stayInCustomerMenu = false; break;
                 default: IO.println("Invalid choice.");
             }
