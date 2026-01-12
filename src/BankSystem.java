@@ -52,41 +52,28 @@ public class BankSystem {
 
 
     private void authenticateCustomer() {
-        //DONE BUT NEED TO UNCOMMENT SOME STUFF ONCE EVERYTHING IS PUSHED TO MAIN
         //Jonny
         IO.println("Please enter your customer ID");
         String customerID = inputScanner.nextLine();
         if (!this.customerMap.containsKey(customerId)) {
             IO.println("Customer ID does not exist.")
-            //Logger.log("Failed authentication: " + customerId) Wait for logger class to be created to uncomment this
+
+            Logger.log("Failed authentication: " + customerId)  //Will only work once logger class is created
 
         }
         else {
-            //Not quite sure which of the below two is needed.
-             this.loggedInCustomer = this.customerMap.get(customerId)
-            //this.loggedInCustomer = (Customer)this.customerMap.get(customerId);
-            //Logger.log("Success: " + customerId) Wait for logger class to be created to uncomment this
-
+             this.loggedInCustomer = this.customerMap.get(customerId) //will only work once customer class is created
+            Logger.log("Success: " + customerId) //Will only work once logger class is created
             this.customerMenu();
 
 
         }
 
 
-        //if hashmap contains customerID {
 
 
     }
-        /* Here we want to write a function to authenticate a customer. This is called when someone
-            types '1' on the start menu */
-        /* We will then want to call a function "CustomerMenu()" which will take user to the customer menu */
 
-
-
-
-
-        //some code then:
-        //CustomerMenu()
 
     }
     private void createCustomer() {
@@ -205,6 +192,63 @@ public class BankSystem {
          - called when user types "2" when on customer menu
 
          */
+
+            /*
+             * Stuff that needs to exist for openNewAccount() to work:
+             *
+             * 1) Account classes:
+             *    - A base Account class (doesn’t have to be abstract, but could be).
+             *    - PersonalAccount, IsaAccount, and BusinessAccount all extend Account.
+             *    - BusinessAccount needs a constructor that takes a String for the business type.
+             *
+             * 2) Customer stuff:
+             *    - Customer has a way to keep track of accounts (like a Map<String, Account>).
+             *    - Customer needs hasISA() and hasBusiness() to check if those accounts exist.
+             *    - Customer needs addAccount(...) to actually store new accounts.
+             *
+             * 3) Constants:
+             *    - ALLOWED_BUSINESS_TYPES should exist as a Set<String> with "SOLE_TRADER" and "LIMITED".
+             *
+             * 4) IO helper:
+             *    - IO.println() and IO.print() for console messages.
+             *
+           */
+
+            IO.println("1. Personal  2. ISA  3. Business");
+            String accountChoice = this.inputScanner.nextLine();
+            Account newAccount = null;
+            if (accountChoice.equals("1")) {
+                newAccount = new PersonalAccount();
+                newAccount.balance = (double)1.0F;
+            } else if (accountChoice.equals("2")) {
+                if (this.loggedInCustomer.hasISA()) {
+                    IO.println("ISA already exists.");
+                    return;
+                }
+
+                newAccount = new IsaAccount();
+            } else {
+                if (!accountChoice.equals("3")) {
+                    IO.println("Invalid account type.");
+                    return;
+                }
+
+                if (this.loggedInCustomer.hasBusiness()) {
+                    IO.println("Business account already exists.");
+                    return;
+                }
+
+                IO.println("Enter business type (SOLE_TRADER / LIMITED): ");
+                String businessType = this.inputScanner.nextLine().toUpperCase();
+                if (!ALLOWED_BUSINESS_TYPES.contains(businessType)) {
+                    IO.println("Business type not supported.");
+                    IO.println("Allowed types: SOLE_TRADER, LIMITED");
+                    return;
+                }
+
+                newAccount = new BusinessAccount(businessType);
+
+
     }
     private void performDeposit() {
         /*
