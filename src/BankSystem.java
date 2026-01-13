@@ -150,10 +150,11 @@ public class BankSystem {
 
          */
         IO.print("Enter account number: ");
-        /* now write some code to check that account is a PERSONAL Account,
-         on system and if so print the below:
-         */
+        String accountNumber = inputScanner.nextLine();
+        /* Get the account number */
 
+        /* Check if account exists */
+        /* If account is not in personal accounts, exit function*/
 
 
         IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
@@ -170,13 +171,24 @@ public class BankSystem {
             //case "4": personalAccount.viewStandingOrders(); break;
             //note viewDirectDebits() and viewStandingOrders() will rely on the account class.
             //addStandingOrder() and addDirectDebit() will be defined on this document next.
-            case "5": return;
-            default: IO.println("Invalid choice.");
+            case "5":
+                return;
+            default:
+                IO.println("Invalid choice.");
         }
-  /*
-        private void addDirectDebit(PersonalAccount account) {
-            here we will want to add a direct debit to a given personalAccount}
-   */
+    }
+
+    private void addDirectDebit(PersonalAccount account) {
+        /* Requires input validation */
+        IO.print("Enter Debit name: ");
+        String debitName = inputScanner.nextLine();
+
+        IO.print("Enter Debit amount (£): ");
+        double debitAmount = Double.parseDouble(inputScanner.nextLine());
+        /* Are you sure? */
+        account.addDirectDebit(new DirectDebit(name, amount));
+
+
 
      /*
     private void addStandingOrder(PersonalAccount account) {
