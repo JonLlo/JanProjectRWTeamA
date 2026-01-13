@@ -186,15 +186,27 @@ public class BankSystem {
         IO.print("Enter Debit amount (£): ");
         double debitAmount = Double.parseDouble(inputScanner.nextLine());
         /* Are you sure? */
-        account.addDirectDebit(new DirectDebit(name, amount));
-
-
-
-     /*
-    private void addStandingOrder(PersonalAccount account) {
-           here we will want to add a standing order to a given personalAccount
+        account.addDirectDebit(new DirectDebit(debitName, debitAmount));
+        saveDataToCSV();
+        Logger.log("Direct Debit added: " + debitName + " £" + debitAmount);
     }
-    */
+
+
+
+
+    private void addStandingOrder(PersonalAccount account) {
+        /* Requires input validation */
+        IO.print("Enter Standing Order name: ");
+        String orderName = inputScanner.nextLine();
+
+        IO.print("Enter Standing Order amount (£): ");
+        double orderAmount = Double.parseDouble(inputScanner.nextLine());
+        /* Are you sure? */
+        account.addStandingOrder(new StandingOrder(orderName, orderAmount));
+        saveDataToCSV();
+        Logger.log("Standing Order added: " + orderName + " £" + orderAmount);
+    }
+
 
 
     }
