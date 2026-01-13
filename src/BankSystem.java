@@ -180,11 +180,30 @@ public class BankSystem {
 
     private void addDirectDebit(PersonalAccount account) {
         /* Requires input validation */
-        IO.print("Enter Debit name: ");
-        String debitName = inputScanner.nextLine();
+        String debitName = "";
 
-        IO.print("Enter Debit amount (£): ");
-        double debitAmount = Double.parseDouble(inputScanner.nextLine());
+        while (debitName.trim().isEmpty()) {
+            IO.print("Enter Debit name: ");
+            debitName = inputScanner.nextLine();
+
+            if (debitName.trim().isEmpty()) {
+                IO.println("Debit name cannot be empty.");
+            }
+        }
+
+        double debitAmount = 0;
+        while (debitAmount <= 0) {
+            IO.print("Enter Debit amount (£): ");
+
+            try {
+                debitAmount = Double.parseDouble(inputScanner.nextLine());
+                if (debitAmount <= 0) {
+                    IO.println("Error: Debit amount must be greater than zero.");
+                }
+            } catch (NumberFormatException e) {
+                IO.println("Error: Please enter a valid amount.");
+            }
+        }
         /* Are you sure? */
         account.addDirectDebit(new DirectDebit(debitName, debitAmount));
         saveDataToCSV();
@@ -192,27 +211,31 @@ public class BankSystem {
     }
 
 
-
-
     private void addStandingOrder(PersonalAccount account) {
         /* Requires input validation */
-        IO.print("Enter Standing Order name: ");
-        String orderName = inputScanner.nextLine();
+        String orderName = "";
+        while (orderName.trim().isEmpty()) {
+            IO.print("Enter Standing Order name: ");
+            orderName = inputScanner.nextLine();
+            if (orderName.trim().isEmpty()) {
+                IO.println("Standing Order name cannot be empty.");
+            }
+        }
 
-        IO.print("Enter Standing Order amount (£): ");
-        double orderAmount = Double.parseDouble(inputScanner.nextLine());
+        double orderAmount = 0;
+        while (orderAmount <= 0) {
+            IO.print("Enter Standing Order amount (£): ");
+            try {
+                orderAmount = Double.parseDouble(inputScanner.nextLine());
+                if (orderAmount <= 0) {
+                    IO.println("Error: Amount must be greater than zero.");
+                }
+            } catch (NumberFormatException e) {
+                IO.println("Error: Please enter a valid amount.");
+            }
+        }
         /* Are you sure? */
         account.addStandingOrder(new StandingOrder(orderName, orderAmount));
         saveDataToCSV();
         Logger.log("Standing Order added: " + orderName + " £" + orderAmount);
     }
-
-
-
-    }
-
-
-
-
-
-}
