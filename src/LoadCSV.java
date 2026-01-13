@@ -102,7 +102,8 @@ public class LoadCSV {
     }
 }
 
-
+//Wouldn't run without a customer class - I think someone else is doing this part
+// Everything below is just so it runs in terminal
 class Customer {
     String id, name;
     Map<String, Account> accounts = new HashMap<>();
