@@ -175,8 +175,8 @@ public class BankSystem {
                 case "1": //loggedInCustomer.viewAccounts() //break;
                     //"ViewAccounts" method needs to be defined in customer class.
                 case "2": //openNewAccount(); break;
-                case "3": //performDeposit(); break;
-                case "4": //performWithdrawal(); break;
+                case "3":   performDeposit(); break;
+                case "4":   performWithdrawal(); break;
                 case "5": //managePayments(); break;
                 case "6": showCustomerHelp(); break;
                 case "7": stayInCustomerMenu = false; break;
@@ -295,6 +295,39 @@ public class BankSystem {
         /*
          - Similar process to the 'performDeposit' function
          - called when user types "4" when on customer menu */
+
+                if (this.loggedInCustomer.getAccounts().isEmpty()) {
+                    IO.println("No accounts available.");
+                } else {
+                    IO.println("Available accounts:");
+
+                    for(Account account : this.loggedInCustomer.getAccounts().values()) {
+                        IO.println(account.toString());
+                    }
+
+                    IO.print("Enter account number to withdraw from: ");
+                    String enteredAccountNumber = this.inputScanner.nextLine();
+                    Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+                    if (selectedAccount == null) {
+                        IO.println("Account not found.");
+                    } else {
+                        IO.print("Enter withdrawal amount: ");
+
+                        double amount;
+                        try {
+                            amount = Double.parseDouble(this.inputScanner.nextLine());
+                        } catch (NumberFormatException var6) {
+                            IO.println("Invalid amount.");
+                            return;
+                        }
+
+                        selectedAccount.withdraw(amount);
+                        Object[] var10001 = new Object[]{selectedAccount.balance};
+                        IO.println("Updated balance: " + String.format("£%.2f", var10001));
+                        this.saveDataToCSV();
+                        Logger.log("WITHDRAW £" + amount + " FROM " + selectedAccount.getAccountNumber());
+                    }
+                }
     }
     private void managePayments() {
      /*
