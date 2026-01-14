@@ -257,6 +257,39 @@ public class BankSystem {
            namely putting down a deposit on a particular account
          - Note diff types of account (ISA, business)
          - called when user types "3" when on customer menu */
+                if (this.loggedInCustomer.getAccounts().isEmpty()) {
+                    IO.println("No accounts available.");
+                } else {
+                    IO.println("Available accounts:");
+
+                    for(Account account : this.loggedInCustomer.getAccounts().values()) {
+                        IO.println(account.toString());
+                    }
+
+                    IO.print("Enter account number to deposit into: ");
+                    String enteredAccountNumber = this.inputScanner.nextLine();
+                    Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+                    if (selectedAccount == null) {
+                        IO.println("Account not found.");
+                    } else {
+                        IO.print("Enter deposit amount: ");
+
+                        double amount;
+                        try {
+                            amount = Double.parseDouble(this.inputScanner.nextLine());
+                        } catch (NumberFormatException var6) {
+                            IO.println("Invalid amount.");
+                            return;
+                        }
+
+                        selectedAccount.deposit(amount);
+                        IO.println("Deposit successful.");
+                        Object[] var10001 = new Object[]{selectedAccount.balance};
+                        IO.println("Updated balance: " + String.format("£%.2f", var10001));
+                        this.saveDataToCSV();
+                        Logger.log("DEPOSIT £" + amount + " INTO " + selectedAccount.getAccountNumber());
+                    }
+                }
     }
     private void performWithdrawal() {
         /*
