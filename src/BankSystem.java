@@ -204,7 +204,16 @@ public class BankSystem {
                 IO.println("Error: Please enter a valid amount.");
             }
         }
+
         /* Are you sure? */
+        IO.print("You are about to add a Direct Debit of " + debitAmount + " to " + debitName + ". Are you sure? (y/n): ");
+        String confirmation = inputScanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("y")) {
+            IO.println("Direct Debit cancelled.");
+            return;
+        }
+
         account.addDirectDebit(new DirectDebit(debitName, debitAmount));
         saveDataToCSV();
         Logger.log("Direct Debit added: " + debitName + " £" + debitAmount);
@@ -235,6 +244,14 @@ public class BankSystem {
             }
         }
         /* Are you sure? */
+        IO.print("You are about to add a Standing Order of " + orderAmount + " to " + orderName + ". Are you sure? (y/n): ");
+        String confirmation = inputScanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("y")) {
+            IO.println("Standing Order cancelled.");
+            return;
+        }
+
         account.addStandingOrder(new StandingOrder(orderName, orderAmount));
         saveDataToCSV();
         Logger.log("Standing Order added: " + orderName + " £" + orderAmount);
