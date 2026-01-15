@@ -338,10 +338,11 @@ public class BankSystem {
 
          */
         IO.print("Enter account number: ");
-        /* now write some code to check that account is a PERSONAL Account,
-         on system and if so print the below:
-         */
+        String accountNumber = inputScanner.nextLine();
+        /* Get the account number */
 
+        /* Check if account exists */
+        /* If account is not in personal accounts, exit function*/
 
 
         IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
@@ -358,25 +359,88 @@ public class BankSystem {
             //case "4": personalAccount.viewStandingOrders(); break;
             //note viewDirectDebits() and viewStandingOrders() will rely on the account class.
             //addStandingOrder() and addDirectDebit() will be defined on this document next.
-            case "5": return;
-            default: IO.println("Invalid choice.");
+            case "5":
+                return;
+            default:
+                IO.println("Invalid choice.");
         }
-  /*
-        private void addDirectDebit(PersonalAccount account) {
-            here we will want to add a direct debit to a given personalAccount}
-   */
+    }
 
-     /*
+    private void addDirectDebit(PersonalAccount account) {
+        /* Requires input validation */
+        String debitName = "";
+
+        while (debitName.trim().isEmpty()) {
+            IO.print("Enter Debit name: ");
+            debitName = inputScanner.nextLine();
+
+            if (debitName.trim().isEmpty()) {
+                IO.println("Debit name cannot be empty.");
+            }
+        }
+
+        double debitAmount = 0;
+        while (debitAmount <= 0) {
+            IO.print("Enter Debit amount (£): ");
+
+            try {
+                debitAmount = Double.parseDouble(inputScanner.nextLine());
+                if (debitAmount <= 0) {
+                    IO.println("Error: Debit amount must be greater than zero.");
+                }
+            } catch (NumberFormatException e) {
+                IO.println("Error: Please enter a valid amount.");
+            }
+        }
+
+        /* Are you sure? */
+        IO.print("You are about to add a Direct Debit of " + debitAmount + " to " + debitName + ". Are you sure? (y/n): ");
+        String confirmation = inputScanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("y")) {
+            IO.println("Direct Debit cancelled.");
+            return;
+        }
+
+        account.addDirectDebit(new DirectDebit(debitName, debitAmount));
+        saveDataToCSV();
+        Logger.log("Direct Debit added: " + debitName + " £" + debitAmount);
+    }
+
+
     private void addStandingOrder(PersonalAccount account) {
-           here we will want to add a standing order to a given personalAccount
+        /* Requires input validation */
+        String orderName = "";
+        while (orderName.trim().isEmpty()) {
+            IO.print("Enter Standing Order name: ");
+            orderName = inputScanner.nextLine();
+            if (orderName.trim().isEmpty()) {
+                IO.println("Standing Order name cannot be empty.");
+            }
+        }
+
+        double orderAmount = 0;
+        while (orderAmount <= 0) {
+            IO.print("Enter Standing Order amount (£): ");
+            try {
+                orderAmount = Double.parseDouble(inputScanner.nextLine());
+                if (orderAmount <= 0) {
+                    IO.println("Error: Amount must be greater than zero.");
+                }
+            } catch (NumberFormatException e) {
+                IO.println("Error: Please enter a valid amount.");
+            }
+        }
+        /* Are you sure? */
+        IO.print("You are about to add a Standing Order of " + orderAmount + " to " + orderName + ". Are you sure? (y/n): ");
+        String confirmation = inputScanner.nextLine();
+
+        if (!confirmation.equalsIgnoreCase("y")) {
+            IO.println("Standing Order cancelled.");
+            return;
+        }
+
+        account.addStandingOrder(new StandingOrder(orderName, orderAmount));
+        saveDataToCSV();
+        Logger.log("Standing Order added: " + orderName + " £" + orderAmount);
     }
-    */
-
-
-    }
-
-
-
-
-
-}
