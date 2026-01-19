@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 
 public class BankSystem {
-    // private Customer loggedInCustomer;  //Here we must define a 'customer' class.
+    private Customer loggedInCustomer;  //Here we must define a 'customer' class.
     // private Map<String, Customer> customerMap = new HashMap<>(); //hash map to log users. Also relies on a 'customer' class.
     private Scanner inputScanner = new Scanner(System.in); //Scanner for "start()" method
     /*The following constructor "public BankSystem()" will run whenever a new object of the class BankSystem is created:
@@ -339,11 +339,15 @@ public class BankSystem {
          */
         IO.print("Enter account number: ");
         String accountNumber = inputScanner.nextLine();
-        /* Get the account number */
+
+        Account userAccount = loggedInCustomer.getAccount(accountNumber);
 
         /* Check if account exists */
         /* If account is not in personal accounts, exit function*/
-
+        if (!(userAccount instanceof PersonalAccount personalAccount)) {
+            IO.println("Account not found.");
+            return;
+        }
 
         IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
         IO.println("1. Add Direct Debit");
@@ -353,23 +357,18 @@ public class BankSystem {
         IO.println("5. Back");
 
         switch (inputScanner.nextLine()) {
-            //case "1": addDirectDebit(personalAccount); break;
-            //case "2": personalAccount.viewDirectDebits(); break;
-            //case "3": addStandingOrder(personalAccount);
-            //case "4": personalAccount.viewStandingOrders(); break;
-            //note viewDirectDebits() and viewStandingOrders() will rely on the account class.
-            //addStandingOrder() and addDirectDebit() will be defined on this document next.
-            case "5":
-                return;
-            default:
-                IO.println("Invalid choice.");
+            case "1": addDirectDebit(personalAccount); break;
+            case "2": personalAccount.viewDirectDebits(); break;
+            case "3": addStandingOrder(personalAccount); break;
+            case "4": personalAccount.viewStandingOrders(); break;
+            case "5": return;
+            default: IO.println("Invalid choice.");
         }
     }
 
     private void addDirectDebit(PersonalAccount account) {
-        /* Requires input validation */
         String debitName = "";
-
+        //Input Validation
         while (debitName.trim().isEmpty()) {
             IO.print("Enter Debit name: ");
             debitName = inputScanner.nextLine();
@@ -393,7 +392,7 @@ public class BankSystem {
             }
         }
 
-        /* Are you sure? */
+        // Are you sure?
         IO.print("You are about to add a Direct Debit of " + debitAmount + " to " + debitName + ". Are you sure? (y/n): ");
         String confirmation = inputScanner.nextLine();
 
@@ -409,11 +408,13 @@ public class BankSystem {
 
 
     private void addStandingOrder(PersonalAccount account) {
-        /* Requires input validation */
+
         String orderName = "";
+        //Input Validation
         while (orderName.trim().isEmpty()) {
             IO.print("Enter Standing Order name: ");
             orderName = inputScanner.nextLine();
+
             if (orderName.trim().isEmpty()) {
                 IO.println("Standing Order name cannot be empty.");
             }
@@ -431,7 +432,7 @@ public class BankSystem {
                 IO.println("Error: Please enter a valid amount.");
             }
         }
-        /* Are you sure? */
+        // Are you sure?
         IO.print("You are about to add a Standing Order of " + orderAmount + " to " + orderName + ". Are you sure? (y/n): ");
         String confirmation = inputScanner.nextLine();
 
