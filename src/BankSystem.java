@@ -113,7 +113,7 @@ public class BankSystem {
         }
         return input;
 /*
-            //We need to replace every instance of: "scanner" with String xyz = helpOnInput()
+            //We need to replace every instance of: "inputscanner.nextLine()" with "helpOnInput()"
 */
     }
     private void showCustomerHelp() {
