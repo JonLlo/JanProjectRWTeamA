@@ -1,3 +1,6 @@
+import java.util.*;
+import java.util.Scanner;
+
 public class BankSystem {
     // private Customer loggedInCustomer;  //Here we must define a 'customer' class.
     // private Map<String, Customer> customerMap = new HashMap<>(); //hash map to log users. Also relies on a 'customer' class.
