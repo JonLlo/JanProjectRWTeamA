@@ -17,7 +17,9 @@ public class BankSystem {
         MAIN_MENU,
         CUSTOMER_MENU,
         DEPOSIT,
-        WITHDRAW
+        WITHDRAW,
+        OPEN_ACCOUNT,
+        PAYMENTS
     }
 
     private HelpContext helpContext = HelpContext.MAIN_MENU;
@@ -41,9 +43,6 @@ public class BankSystem {
             }
         }
     }
-
-
-
     public void start() {
         helpContext = HelpContext.MAIN_MENU;
         boolean running = true;
@@ -71,17 +70,11 @@ public class BankSystem {
                 default: IO.println("Invalid choice.");
             }
 
-
-
-
-
-
-
-
         }
     }
     private void authenticateCustomer() {
         //Jonny
+        helpContext = HelpContext.CUSTOMER_MENU;
         IO.println("Please enter your customer ID");
         String customerId = helpOnInput();
         if (!this.customerMap.containsKey(customerId)) {
@@ -103,36 +96,44 @@ public class BankSystem {
 
     }
     private void createCustomer() {
-        /* Here we want to write a function to create a customer. This is called when someone
-        types '2' on the start menu */
-
         IO.print("Enter Customer ID: ");
         String customerId = helpOnInput();
 
         if (customerMap.containsKey(customerId)) {
-            if (customerMap.containsKey(customerId)) {
-                IO.println("Customer ID already exists.");
-                return;
-            }
-
-            IO.print("Enter Customer Name: ");
-            String customerName = helpOnInput();
-
-            customerMap.put(customerId, new Customer(customerId, customerName));
-            Logger.log("NEW CUSTOMER CREATED: " + customerId);
-
-            IO.println("Customer created successfully.");
-            saveDataToCSV();
+            IO.println("Customer ID already exists.");
+            return;
         }
 
-    }
-    private void showMainHelp() {
-        /*
-         * Displays help information for the MAIN MENU.
-         * This method is called when the user selects "Help" from the main menu
-         * or when context-aware help is triggered while the user is in the main menu.
-         */
+        IO.print("Enter Customer Name: ");
+        String customerName = helpOnInput();
 
+        customerMap.put(customerId, new Customer(customerId, customerName));
+        Logger.log("NEW CUSTOMER CREATED: " + customerId);
+        IO.println("Customer created successfully.");
+        saveDataToCSV();
+    }
+    private String helpOnInput() {
+        while (true) {
+            String input = inputScanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("help")) {
+                switch (helpContext) {
+                    case MAIN_MENU -> showMainHelp();
+                    case CUSTOMER_MENU -> showCustomerHelp();
+                    case DEPOSIT -> showDepositHelp();
+                    case WITHDRAW -> showWithdrawalHelp();
+                    case OPEN_ACCOUNT -> showOpenAccountHelp();
+                    case PAYMENTS -> showPaymentsHelp();
+                }
+                IO.print("> "); // optional prompt after showing help
+                continue; // loop again
+            }
+
+            return input; // only return if it's not "help"
+        }
+    }
+
+    private void showMainHelp() {
         IO.println("\n=== HELP: MAIN MENU ===");
         IO.println("1. Authenticate Customer - Log in using a valid Customer ID.");
         IO.println("2. Create Customer      - Add a new customer with unique ID.");
@@ -141,22 +142,18 @@ public class BankSystem {
         IO.println("\nNotes:");
         IO.println("- Customer IDs must be unique.");
         IO.println("- Data is saved automatically on exit.");
-
+        IO.println("\nPress Enter to return to the menu...");
     }
-    private String helpOnInput() {
-        String input = inputScanner.nextLine();
-
-        if (input.equalsIgnoreCase("help")) {
-            switch (helpContext) {
-                case MAIN_MENU -> showMainHelp();
-                case CUSTOMER_MENU -> showCustomerHelp();
-                case DEPOSIT -> showDepositHelp();
-                case WITHDRAW -> showWithdrawalHelp();
-            }
-            return helpOnInput();
-        }
-
-        return input;
+    private void showPaymentsHelp() {
+        IO.println("\n=== HELP: DIRECT DEBITS & STANDING ORDERS ===");
+        IO.println("- Add/View Direct Debits: only positive amounts, requires a name.");
+        IO.println("- Add/View Standing Orders: only positive amounts, requires a name.");
+    }
+    private void showOpenAccountHelp() {
+        IO.println("\n=== HELP: OPEN ACCOUNT ===");
+        IO.println("- Personal Account: min £1, multiple allowed, requires ID validation.");
+        IO.println("- ISA Account: only 1 per customer, interest at 2.75% APR.");
+        IO.println("- Business Account: only 1 per customer, type must be SOLE_TRADER or LIMITED, £120 annual fee.");
     }
     private void showCustomerHelp() {
         IO.println("\n=== HELP: CUSTOMER MENU ===");
@@ -172,23 +169,21 @@ public class BankSystem {
         IO.println("\nNotes:");
         IO.println("- All transactions are logged with timestamps.");
         IO.println("- Account numbers are unique and required for selecting accounts.");
+        IO.println("\nPress Enter to return to the menu...");
     }
-
-
     private void showDepositHelp() {
         IO.println("\n=== HELP: DEPOSIT ===");
         IO.println("- Select an account by account number.");
         IO.println("- Deposit amount must be greater than £0.");
         IO.println("- Only numeric values are accepted.");
+        IO.println("\nPress Enter to return to the menu...");
     }
-
     private void showWithdrawalHelp() {
         IO.println("\n=== HELP: WITHDRAW ===");
         IO.println("- Withdrawal amount must be greater than £0.");
         IO.println("- Amount cannot exceed available balance.");
+        IO.println("\nPress Enter to return to the menu...");
     }
-
-
     // added saveDataToCSV and loadDataFromCSV() to this section
     private void saveDataToCSV() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(DATA_FILE_NAME))) {
@@ -235,7 +230,6 @@ public class BankSystem {
             IO.println("Error saving CSV.");
         }
     }
-
     private void loadDataFromCSV() {
         File file = new File(BankSystem.DATA_FILE_NAME);
         if (!file.exists()) return;
@@ -305,7 +299,6 @@ public class BankSystem {
             IO.println("Error loading CSV.");
         }
     }
-
     private void customerMenu() {
         helpContext = HelpContext.CUSTOMER_MENU;
         boolean stayInCustomerMenu = true;
@@ -339,6 +332,8 @@ public class BankSystem {
         }
     }
     private void openNewAccount() {
+        helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
+
         /*
          - here we define a function to open a new account.
          - will be dependent on an account class and a customer class.
@@ -496,6 +491,7 @@ public class BankSystem {
          - called when user types "2" when on customer menu
 
          */
+        helpContext = HelpContext.PAYMENTS;      // before managing payments
         IO.print("Enter account number: ");
         String accountNumber = helpOnInput();
 
