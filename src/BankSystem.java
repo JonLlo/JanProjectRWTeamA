@@ -47,9 +47,7 @@ public class BankSystem {
         helpContext = HelpContext.MAIN_MENU;
         boolean running = true;
         while (running) {
-            IO.println("========================================\n" +
-                    "       ACME BANK System\n" +
-                    "========================================");
+            IO.println("=== MAIN MENU ===");
             IO.println("Please select an option:");
             IO.println("1. Authenticate Customer");
             IO.println("2. Create New Customer");
@@ -67,7 +65,7 @@ public class BankSystem {
                 case "2": createCustomer(); break;
                 case "3": showMainHelp(); break;
                 case "4": IO.println("saveDataToCSV()"); running = false; break;
-                default: IO.println("Invalid choice.");
+                //default: IO.println("Invalid choice 2.");
             }
 
         }
@@ -75,7 +73,7 @@ public class BankSystem {
     private void authenticateCustomer() {
         //Jonny
         helpContext = HelpContext.CUSTOMER_MENU;
-        IO.println("Please enter your customer ID");
+        IO.println("Please enter your customer ID:");
         String customerId = helpOnInput();
         if (!this.customerMap.containsKey(customerId)) {
             IO.println("Customer ID does not exist.");
@@ -125,7 +123,6 @@ public class BankSystem {
                     case OPEN_ACCOUNT -> showOpenAccountHelp();
                     case PAYMENTS -> showPaymentsHelp();
                 }
-                IO.print("> "); // optional prompt after showing help
                 continue; // loop again
             }
 
@@ -143,17 +140,23 @@ public class BankSystem {
         IO.println("- Customer IDs must be unique.");
         IO.println("- Data is saved automatically on exit.");
         IO.println("\nPress Enter to return to the menu...");
+        inputScanner.nextLine(); // pause for Enter
+
     }
     private void showPaymentsHelp() {
         IO.println("\n=== HELP: DIRECT DEBITS & STANDING ORDERS ===");
         IO.println("- Add/View Direct Debits: only positive amounts, requires a name.");
         IO.println("- Add/View Standing Orders: only positive amounts, requires a name.");
+        inputScanner.nextLine(); //  pause for Enter
+
     }
     private void showOpenAccountHelp() {
         IO.println("\n=== HELP: OPEN ACCOUNT ===");
         IO.println("- Personal Account: min £1, multiple allowed, requires ID validation.");
         IO.println("- ISA Account: only 1 per customer, interest at 2.75% APR.");
         IO.println("- Business Account: only 1 per customer, type must be SOLE_TRADER or LIMITED, £120 annual fee.");
+        inputScanner.nextLine(); //  pause for Enter
+
     }
     private void showCustomerHelp() {
         IO.println("\n=== HELP: CUSTOMER MENU ===");
@@ -170,6 +173,8 @@ public class BankSystem {
         IO.println("- All transactions are logged with timestamps.");
         IO.println("- Account numbers are unique and required for selecting accounts.");
         IO.println("\nPress Enter to return to the menu...");
+        inputScanner.nextLine(); //  pause for Enter
+
     }
     private void showDepositHelp() {
         IO.println("\n=== HELP: DEPOSIT ===");
@@ -177,12 +182,17 @@ public class BankSystem {
         IO.println("- Deposit amount must be greater than £0.");
         IO.println("- Only numeric values are accepted.");
         IO.println("\nPress Enter to return to the menu...");
+        inputScanner.nextLine(); //  pause for Enter
+
     }
     private void showWithdrawalHelp() {
         IO.println("\n=== HELP: WITHDRAW ===");
         IO.println("- Withdrawal amount must be greater than £0.");
         IO.println("- Amount cannot exceed available balance.");
         IO.println("\nPress Enter to return to the menu...");
+        inputScanner.nextLine(); //  pause for Enter
+
+
     }
     // added saveDataToCSV and loadDataFromCSV() to this section
     private void saveDataToCSV() {
@@ -327,7 +337,7 @@ public class BankSystem {
                 case "5": managePayments(); break;
                 case "6": showCustomerHelp(); break;
                 case "7": stayInCustomerMenu = false; break;
-                default: IO.println("Invalid choice.");
+                default: IO.println(" choice.");
             }
         }
     }
@@ -371,7 +381,6 @@ public class BankSystem {
 
         // ✅ Save data so it persists
         newAccount.assignIdentifiers();
-        this.loggedInCustomer.addAccount(newAccount);
         Logger.log("ACCOUNT CREATED: " + newAccount.getAccountNumber());
         IO.println("Account created: " + newAccount.getAccountNumber());
         this.saveDataToCSV();
@@ -495,7 +504,7 @@ public class BankSystem {
             case "3": addStandingOrder(personalAccount); break;
             case "4": personalAccount.viewStandingOrders(); break;
             case "5": return;
-            default: IO.println("Invalid choice.");
+            default: IO.println("Invalid choice 1.");
         }
     }
     private void addDirectDebit (PersonalAccount account){
