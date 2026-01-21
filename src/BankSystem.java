@@ -12,6 +12,8 @@ import java.io.File;
 public class BankSystem {
 
    //for help menu:
+    boolean typedHelp = false;
+
 
     enum HelpContext {
         MAIN_MENU,
@@ -115,6 +117,7 @@ public class BankSystem {
             String input = inputScanner.nextLine().trim();
 
             if (input.equalsIgnoreCase("help")) {
+                // Show the correct help screen
                 switch (helpContext) {
                     case MAIN_MENU -> showMainHelp();
                     case CUSTOMER_MENU -> showCustomerHelp();
@@ -123,12 +126,21 @@ public class BankSystem {
                     case OPEN_ACCOUNT -> showOpenAccountHelp();
                     case PAYMENTS -> showPaymentsHelp();
                 }
-                continue; // loop again
+
+                // Pause **only after showing help**
+
+
+                // Loop back to ask for input again
+
             }
 
-            return input; // only return if it's not "help"
+
+
+            // Normal input — return immediately
+            return input;
         }
     }
+
 
     private void showMainHelp() {
         IO.println("\n=== HELP: MAIN MENU ===");
@@ -139,15 +151,20 @@ public class BankSystem {
         IO.println("\nNotes:");
         IO.println("- Customer IDs must be unique.");
         IO.println("- Data is saved automatically on exit.");
-        IO.println("\nPress Enter to return to the menu...");
-        inputScanner.nextLine(); // pause for Enter
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+
+
 
     }
     private void showPaymentsHelp() {
         IO.println("\n=== HELP: DIRECT DEBITS & STANDING ORDERS ===");
         IO.println("- Add/View Direct Debits: only positive amounts, requires a name.");
         IO.println("- Add/View Standing Orders: only positive amounts, requires a name.");
-        inputScanner.nextLine(); //  pause for Enter
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
 
     }
     private void showOpenAccountHelp() {
@@ -155,7 +172,10 @@ public class BankSystem {
         IO.println("- Personal Account: min £1, multiple allowed, requires ID validation.");
         IO.println("- ISA Account: only 1 per customer, interest at 2.75% APR.");
         IO.println("- Business Account: only 1 per customer, type must be SOLE_TRADER or LIMITED, £120 annual fee.");
-        inputScanner.nextLine(); //  pause for Enter
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+
 
     }
     private void showCustomerHelp() {
@@ -172,8 +192,9 @@ public class BankSystem {
         IO.println("\nNotes:");
         IO.println("- All transactions are logged with timestamps.");
         IO.println("- Account numbers are unique and required for selecting accounts.");
-        IO.println("\nPress Enter to return to the menu...");
-        inputScanner.nextLine(); //  pause for Enter
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
 
     }
     private void showDepositHelp() {
@@ -181,16 +202,20 @@ public class BankSystem {
         IO.println("- Select an account by account number.");
         IO.println("- Deposit amount must be greater than £0.");
         IO.println("- Only numeric values are accepted.");
-        IO.println("\nPress Enter to return to the menu...");
-        inputScanner.nextLine(); //  pause for Enter
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+
 
     }
     private void showWithdrawalHelp() {
         IO.println("\n=== HELP: WITHDRAW ===");
         IO.println("- Withdrawal amount must be greater than £0.");
         IO.println("- Amount cannot exceed available balance.");
-        IO.println("\nPress Enter to return to the menu...");
-        inputScanner.nextLine(); //  pause for Enter
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+
 
 
     }
