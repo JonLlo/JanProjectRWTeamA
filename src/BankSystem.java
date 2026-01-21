@@ -1,16 +1,33 @@
+import java.io.FileWriter;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.Scanner;
+import java.time.LocalDate;
 
 public class BankSystem {
-    private Customer loggedInCustomer;  //Here we must define a 'customer' class.
-    // private Map<String, Customer> customerMap = new HashMap<>(); //hash map to log users. Also relies on a 'customer' class.
-    private Scanner inputScanner = new Scanner(System.in); //Scanner for "start()" method
-    /*The following constructor "public BankSystem()" will run whenever a new object of the class BankSystem is created:
-    i.e. when "BankSystem bank = new BankSystem();" is called */
-    public BankSystem() {
-        //IO.println("\n=== Bank System has been called! ===");
+    private Map<String, Customer> customerMap = new HashMap<>();
+    private Scanner inputScanner = new Scanner(System.in);
+    private Customer loggedInCustomer;
+    private static final Set<String> ALLOWED_BUSINESS_TYPES =
+            Set.of("SOLE_TRADER", "LIMITED");
+    private static final String DATA_FILE_NAME = "bank_data.csv";
 
+    public BankSystem() {
+        loadDataFromCSV();
+
+        for (Customer customer : customerMap.values()) {
+            for (Account account : customer.getAccounts().values()) {
+                account.applyAnnualInterest();
+                account.applyAnnualFee();
+            }
+        }
     }
+
+
+}
     public void start() {
         boolean running = true;
         while (running) {
@@ -134,10 +151,124 @@ public class BankSystem {
         IO.println("- All transactions are logged with timestamps.");
         IO.println("- Account numbers are unique and required for selecting accounts.");
     }
+
+    // added saveDataToCSV and loadDataFromCSV() to this section
     private void saveDataToCSV() {
-        /*Here we want to write a function that saves all the data to the CSV (essentially the hashmap but in plain text).
-        And we want to run this just before the program is exited (when someone types '4')
-         */}
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DATA_FILE_NAME))) {
+            for (Customer customer : customerMap.values()) {
+                writer.println("C," + customer.getId() + "," + customer.getName());
+                for (Account account : customer.getAccounts().values()) {
+                    String type = "P";
+                    if (account instanceof IsaAccount) {
+                        type = "I";
+                    } else if (account instanceof BusinessAccount) {
+                        type = "B";
+                    }
+                    String lastFeeDate = "";
+                    if (account instanceof BusinessAccount) {
+                        LocalDate d = ((BusinessAccount) account).getLastFeeAppliedDate();
+                        if (d != null) {
+                            lastFeeDate = d.toString();
+                        }
+                    }
+                    // ACCOUNT
+                    writer.println("A," + customer.getId() + "," + type + "," +
+                            account.getAccountNumber() + "," +
+                            account.sortCode + "," +
+                            String.format("%.2f", account.balance) + "," +
+                            lastFeeDate);
+                    // DIRECT DEBITS
+                    for (DirectDebit dd : account.getDirectDebits()) {
+                        writer.println("D," + customer.getId() + "," +
+                                account.getAccountNumber() + "," +
+                                dd.getPayee() + "," +
+                                String.format("%.2f", dd.getAmount()));
+                    }
+                    // STANDING ORDERS
+                    for (StandingOrder so : account.getStandingOrders()) {
+                        writer.println("S," + customer.getId() + "," +
+                                account.getAccountNumber() + "," +
+                                so.getPayee() + "," +
+                                String.format("%.2f", so.getAmount()));
+                    }
+                }
+            }
+            IO.println("CSV data saved.");
+        } catch (Exception e) {
+            IO.println("Error saving CSV.");
+        }
+    }
+
+    private void loadDataFromCSV() {
+        File file = new File(BankSystem.DATA_FILE_NAME);
+        if (!file.exists()) return;
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (line.isEmpty()) continue;
+                String[] p = line.split(",");
+
+                switch (p[0]) {
+                    case "C":
+                        customerMap.put(p[1], new Customer(p[1], p[2]));
+                        break;
+                    case "A": {
+                        Customer customer = customerMap.get(p[1]);
+                        if (customer == null) break;
+                        Account account = null;
+                        String lastFeeDate = p.length > 6 ? p[6] : "";
+                        switch (p[2]) {
+                            case "P":
+                                account = new PersonalAccount();
+                                break;
+                            case "I":
+                                account = new IsaAccount();
+                                break;
+                            case "B":
+                                account = new BusinessAccount();
+                                if (!lastFeeDate.isEmpty()) {
+                                    ((BusinessAccount) account)
+                                            .setLastFeeAppliedDate(LocalDate.parse(lastFeeDate));
+                                }
+                                break;
+                        }
+
+                        if (account == null) break;
+                        account.accountNumber = p[3];
+                        account.sortCode = p[4];
+                        account.balance = Double.parseDouble(p[5]);
+                        AccountNumberGenerator.registerExisting(p[3]);
+                        customer.addAccount(account);
+                        break;
+                    }
+                    case "D": {
+                        Customer customer = customerMap.get(p[1]);
+                        if (customer == null) break;
+                        Account account = customer.getAccount(p[2]);
+                        if (account instanceof PersonalAccount) {
+                            account.loadDirectDebit(
+                                    new DirectDebit(p[3], Double.parseDouble(p[4])));
+                        }
+                        break;
+                    }
+                    case "S": {
+                        Customer customer = customerMap.get(p[1]);
+                        if (customer == null) break;
+                        Account account = customer.getAccount(p[2]);
+                        if (account instanceof PersonalAccount) {
+                            account.loadStandingOrder(
+                                    new StandingOrder(p[3], Double.parseDouble(p[4])));
+                        }
+                        break;
+                    }
+                }
+            }
+            IO.println("CSV data loaded.");
+        } catch (Exception e) {
+            IO.println("Error loading CSV.");
+        }
+    }
+
     private void customerMenu() {
         boolean stayInCustomerMenu = true;
         while (stayInCustomerMenu) {
