@@ -334,71 +334,50 @@ public class BankSystem {
     private void openNewAccount() {
         helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
 
-        /*
-         - here we define a function to open a new account.
-         - will be dependent on an account class and a customer class.
-         - Note diff types of account (ISA, business)
-         - called when user types "2" when on customer menu
-
-         */
-
-        /*
-         * Stuff that needs to exist for openNewAccount() to work:
-         *
-         * 1) Account classes:
-         *    - A base Account class (doesn’t have to be abstract, but could be).
-         *    - PersonalAccount, IsaAccount, and BusinessAccount all extend Account.
-         *    - BusinessAccount needs a constructor that takes a String for the business type.
-         *
-         * 2) Customer stuff:
-         *    - Customer has a way to keep track of accounts (like a Map<String, Account>).
-         *    - Customer needs hasISA() and hasBusiness() to check if those accounts exist.
-         *    - Customer needs addAccount(...) to actually store new accounts.
-         *
-         * 3) Constants:
-         *    - ALLOWED_BUSINESS_TYPES should exist as a Set<String> with "SOLE_TRADER" and "LIMITED".
-         *
-         * 4) IO helper:
-         *    - IO.println() and IO.print() for console messages.
-         *
-         */
-
         IO.println("1. Personal  2. ISA  3. Business");
         String accountChoice = this.helpOnInput();
         Account newAccount = null;
+
         if (accountChoice.equals("1")) {
             newAccount = new PersonalAccount();
-            newAccount.balance = (double) 1.0F;
+            newAccount.balance = 1.0;
         } else if (accountChoice.equals("2")) {
             if (this.loggedInCustomer.hasISA()) {
                 IO.println("ISA already exists.");
                 return;
             }
-
             newAccount = new IsaAccount();
-        } else {
-            if (!accountChoice.equals("3")) {
-                IO.println("Invalid account type.");
-                return;
-            }
-
+        } else if (accountChoice.equals("3")) {
             if (this.loggedInCustomer.hasBusiness()) {
                 IO.println("Business account already exists.");
                 return;
             }
 
-            IO.println("Enter business type (SOLE_TRADER / LIMITED): ");
+            IO.print("Enter business type (SOLE_TRADER / LIMITED): ");
             String businessType = this.helpOnInput().toUpperCase();
             if (!ALLOWED_BUSINESS_TYPES.contains(businessType)) {
-                IO.println("Business type not supported.");
-                IO.println("Allowed types: SOLE_TRADER, LIMITED");
+                IO.println("Business type not supported. Allowed types: SOLE_TRADER, LIMITED");
                 return;
             }
 
             newAccount = new BusinessAccount(businessType);
+        } else {
+            IO.println("Invalid account type.");
+            return;
+        }
 
+        // ✅ Add the new account to the customer
+        this.loggedInCustomer.addAccount(newAccount);
 
-        } }
+        // ✅ Save data so it persists
+        saveDataToCSV();
+
+        // ✅ Give the user feedback
+        IO.println("Account created successfully!");
+        IO.println("Account Number: " + newAccount.getAccountNumber() +
+                " | Balance: £" + String.format("%.2f", newAccount.balance));
+    }
+
     private void performDeposit () {
         /*
          - here we define a function to put down a deposit.
