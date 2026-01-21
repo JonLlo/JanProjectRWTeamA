@@ -319,12 +319,12 @@ public class BankSystem {
 
                 //done but need to uncomment functions once they are made.
                 //below are all functions we need to define later on
-                case "1": //loggedInCustomer.viewAccounts() //break;
+                case "1": loggedInCustomer.viewAccounts(); break;
                     //"ViewAccounts" method needs to be defined in customer class.
-                case "2": //openNewAccount(); break;
+                case "2":   openNewAccount(); break;
                 case "3":   performDeposit(); break;
                 case "4":   performWithdrawal(); break;
-                case "5": //managePayments(); break;
+                case "5": managePayments(); break;
                 case "6": showCustomerHelp(); break;
                 case "7": stayInCustomerMenu = false; break;
                 default: IO.println("Invalid choice.");
