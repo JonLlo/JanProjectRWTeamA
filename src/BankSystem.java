@@ -12,7 +12,6 @@ import java.io.File;
 public class BankSystem {
 
    //for help menu:
-    boolean typedHelp = false;
 
 
     enum HelpContext {
@@ -179,6 +178,7 @@ public class BankSystem {
 
     }
     private void showCustomerHelp() {
+
         IO.println("\n=== HELP: CUSTOMER MENU ===");
         IO.println("1. View Accounts   - List all accounts for this customer.");
         IO.println("2. Open Account    - Create a new account. Rules:");
@@ -248,14 +248,14 @@ public class BankSystem {
                     for (DirectDebit dd : account.getDirectDebits()) {
                         writer.println("D," + customer.getId() + "," +
                                 account.getAccountNumber() + "," +
-                                //dd.getPayee() + "," +
+                                dd.getPayee() + "," +
                                 String.format("%.2f", dd.getAmount()));
                     }
                     // STANDING ORDERS
                     for (StandingOrder so : account.getStandingOrders()) {
                         writer.println("S," + customer.getId() + "," +
                                 account.getAccountNumber() + "," +
-                                //so.getPayee() + "," +
+                                so.getPayee() + "," +
                                 String.format("%.2f", so.getAmount()));
                     }
                 }
@@ -354,11 +354,14 @@ public class BankSystem {
 
                 //done but need to uncomment functions once they are made.
                 //below are all functions we need to define later on
-                case "1": loggedInCustomer.viewAccounts(); break;
-                    //"ViewAccounts" method needs to be defined in customer class.
-                case "2":   openNewAccount(); break;
-                case "3":   performDeposit(); break;
-                case "4":   performWithdrawal(); break;
+                case "1": helpContext = HelpContext.OPEN_ACCOUNT;
+                          loggedInCustomer.viewAccounts(); break;
+
+
+                //"ViewAccounts" method needs to be defined in customer class.
+                case "2": openNewAccount(); break;
+                case "3":  performDeposit(); break;
+                case "4":  performWithdrawal(); break;
                 case "5": managePayments(); break;
                 case "6": showCustomerHelp(); break;
                 case "7": stayInCustomerMenu = false; break;
@@ -368,44 +371,43 @@ public class BankSystem {
     }
     private void openNewAccount() {
         helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
-
         IO.println("1. Personal  2. ISA  3. Business");
-        String accountChoice = this.helpOnInput();
+        String accountChoice = this.inputScanner.nextLine();
         Account newAccount = null;
-
         if (accountChoice.equals("1")) {
             newAccount = new PersonalAccount();
-            newAccount.balance = 1.0;
+            newAccount.balance = (double)1.0F;
         } else if (accountChoice.equals("2")) {
             if (this.loggedInCustomer.hasISA()) {
                 IO.println("ISA already exists.");
                 return;
             }
+
             newAccount = new IsaAccount();
-        } else if (accountChoice.equals("3")) {
+        } else {
+            if (!accountChoice.equals("3")) {
+                IO.println("Invalid account type.");
+                return;
+            }
+
             if (this.loggedInCustomer.hasBusiness()) {
                 IO.println("Business account already exists.");
                 return;
             }
 
-            IO.print("Enter business type (SOLE_TRADER / LIMITED): ");
-            String businessType = this.helpOnInput().toUpperCase();
+            IO.println("Enter business type (SOLE_TRADER / LIMITED): ");
+            String businessType = this.inputScanner.nextLine().toUpperCase();
             if (!ALLOWED_BUSINESS_TYPES.contains(businessType)) {
-                IO.println("Business type not supported. Allowed types: SOLE_TRADER, LIMITED");
+                IO.println("Business type not supported.");
+                IO.println("Allowed types: SOLE_TRADER, LIMITED");
                 return;
             }
 
             newAccount = new BusinessAccount(businessType);
-        } else {
-            IO.println("Invalid account type.");
-            return;
         }
 
-        // ✅ Add the new account to the customer
-        this.loggedInCustomer.addAccount(newAccount);
-
-        // ✅ Save data so it persists
         newAccount.assignIdentifiers();
+        this.loggedInCustomer.addAccount(newAccount);
         Logger.log("ACCOUNT CREATED: " + newAccount.getAccountNumber());
         IO.println("Account created: " + newAccount.getAccountNumber());
         this.saveDataToCSV();
