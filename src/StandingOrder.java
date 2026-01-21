@@ -9,7 +9,7 @@ public class StandingOrder {
 
     public double getAmount() {return amount;}
 
-    public String getPayeeName() {return payeeName;}
+    public String getPayee() {return payeeName;}
 
     public String toString() {
         return "Standing Order to " + payeeName + " | Amount: " + String.format("£%.2f", amount);
