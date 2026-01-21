@@ -6,8 +6,24 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.Scanner;
 import java.time.LocalDate;
+import java.io.File;
+
 
 public class BankSystem {
+
+   //for help menu:
+
+    enum HelpContext {
+        MAIN_MENU,
+        CUSTOMER_MENU,
+        DEPOSIT,
+        WITHDRAW
+    }
+
+    private HelpContext helpContext = HelpContext.MAIN_MENU;
+    //
+
+
     private Map<String, Customer> customerMap = new HashMap<>();
     private Scanner inputScanner = new Scanner(System.in);
     private Customer loggedInCustomer;
@@ -27,8 +43,9 @@ public class BankSystem {
     }
 
 
-}
+
     public void start() {
+        helpContext = HelpContext.MAIN_MENU;
         boolean running = true;
         while (running) {
             IO.println("========================================\n" +
@@ -44,7 +61,7 @@ public class BankSystem {
 
             IO.print("Enter Option number: ");
 
-            String menuChoice = inputScanner.nextLine();
+            String menuChoice = helpOnInput();
 
             switch (menuChoice) {
                 case "1": authenticateCustomer(); break;
@@ -66,7 +83,7 @@ public class BankSystem {
     private void authenticateCustomer() {
         //Jonny
         IO.println("Please enter your customer ID");
-        String customerID = inputScanner.nextLine();
+        String customerId = helpOnInput();
         if (!this.customerMap.containsKey(customerId)) {
             IO.println("Customer ID does not exist.");
 
@@ -90,7 +107,7 @@ public class BankSystem {
         types '2' on the start menu */
 
         IO.print("Enter Customer ID: ");
-        String customerId = inputScanner.nextLine();
+        String customerId = helpOnInput();
 
         if (customerMap.containsKey(customerId)) {
             if (customerMap.containsKey(customerId)) {
@@ -99,7 +116,7 @@ public class BankSystem {
             }
 
             IO.print("Enter Customer Name: ");
-            String customerName = inputScanner.nextLine();
+            String customerName = helpOnInput();
 
             customerMap.put(customerId, new Customer(customerId, customerName));
             Logger.log("NEW CUSTOMER CREATED: " + customerId);
@@ -110,9 +127,11 @@ public class BankSystem {
 
     }
     private void showMainHelp() {
-       /* Here we want to write a function to show main help. This is called when someone
-        types '3' on the start menu. It also, as per the brief, needs to be called anytime someone types 'help'
-        ANYWHERE in the application*/
+        /*
+         * Displays help information for the MAIN MENU.
+         * This method is called when the user selects "Help" from the main menu
+         * or when context-aware help is triggered while the user is in the main menu.
+         */
 
         IO.println("\n=== HELP: MAIN MENU ===");
         IO.println("1. Authenticate Customer - Log in using a valid Customer ID.");
@@ -125,16 +144,19 @@ public class BankSystem {
 
     }
     private String helpOnInput() {
-        //makes it so any time in the application if someone types help, the help menu comes up.
         String input = inputScanner.nextLine();
+
         if (input.equalsIgnoreCase("help")) {
-            showMainHelp();  // show the main help
-            return helpOnInput(); // recursively ask again
+            switch (helpContext) {
+                case MAIN_MENU -> showMainHelp();
+                case CUSTOMER_MENU -> showCustomerHelp();
+                case DEPOSIT -> showDepositHelp();
+                case WITHDRAW -> showWithdrawalHelp();
+            }
+            return helpOnInput();
         }
+
         return input;
-/*
-            //We need to replace every instance of: "inputscanner.nextLine()" with "helpOnInput()"
-*/
     }
     private void showCustomerHelp() {
         IO.println("\n=== HELP: CUSTOMER MENU ===");
@@ -151,6 +173,21 @@ public class BankSystem {
         IO.println("- All transactions are logged with timestamps.");
         IO.println("- Account numbers are unique and required for selecting accounts.");
     }
+
+
+    private void showDepositHelp() {
+        IO.println("\n=== HELP: DEPOSIT ===");
+        IO.println("- Select an account by account number.");
+        IO.println("- Deposit amount must be greater than £0.");
+        IO.println("- Only numeric values are accepted.");
+    }
+
+    private void showWithdrawalHelp() {
+        IO.println("\n=== HELP: WITHDRAW ===");
+        IO.println("- Withdrawal amount must be greater than £0.");
+        IO.println("- Amount cannot exceed available balance.");
+    }
+
 
     // added saveDataToCSV and loadDataFromCSV() to this section
     private void saveDataToCSV() {
@@ -181,14 +218,14 @@ public class BankSystem {
                     for (DirectDebit dd : account.getDirectDebits()) {
                         writer.println("D," + customer.getId() + "," +
                                 account.getAccountNumber() + "," +
-                                dd.getPayee() + "," +
+                                //dd.getPayee() + "," +
                                 String.format("%.2f", dd.getAmount()));
                     }
                     // STANDING ORDERS
                     for (StandingOrder so : account.getStandingOrders()) {
                         writer.println("S," + customer.getId() + "," +
                                 account.getAccountNumber() + "," +
-                                so.getPayee() + "," +
+                                //so.getPayee() + "," +
                                 String.format("%.2f", so.getAmount()));
                     }
                 }
@@ -270,6 +307,7 @@ public class BankSystem {
     }
 
     private void customerMenu() {
+        helpContext = HelpContext.CUSTOMER_MENU;
         boolean stayInCustomerMenu = true;
         while (stayInCustomerMenu) {
             IO.println("\n=== CUSTOMER MENU ===");
@@ -282,7 +320,7 @@ public class BankSystem {
             IO.println("7. Switch Customer");
 
 
-            String choice = inputScanner.nextLine();
+            String choice = helpOnInput();
 
             switch (choice) {
 
@@ -331,7 +369,7 @@ public class BankSystem {
          */
 
         IO.println("1. Personal  2. ISA  3. Business");
-        String accountChoice = this.inputScanner.nextLine();
+        String accountChoice = this.helpOnInput();
         Account newAccount = null;
         if (accountChoice.equals("1")) {
             newAccount = new PersonalAccount();
@@ -355,7 +393,7 @@ public class BankSystem {
             }
 
             IO.println("Enter business type (SOLE_TRADER / LIMITED): ");
-            String businessType = this.inputScanner.nextLine().toUpperCase();
+            String businessType = this.helpOnInput().toUpperCase();
             if (!ALLOWED_BUSINESS_TYPES.contains(businessType)) {
                 IO.println("Business type not supported.");
                 IO.println("Allowed types: SOLE_TRADER, LIMITED");
@@ -373,6 +411,10 @@ public class BankSystem {
            namely putting down a deposit on a particular account
          - Note diff types of account (ISA, business)
          - called when user types "3" when on customer menu */
+
+
+        helpContext = HelpContext.DEPOSIT;
+
         if (this.loggedInCustomer.getAccounts().isEmpty()) {
             IO.println("No accounts available.");
         } else {
@@ -383,7 +425,7 @@ public class BankSystem {
             }
 
             IO.print("Enter account number to deposit into: ");
-            String enteredAccountNumber = this.inputScanner.nextLine();
+            String enteredAccountNumber = this.helpOnInput();
             Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
             if (selectedAccount == null) {
                 IO.println("Account not found.");
@@ -392,7 +434,7 @@ public class BankSystem {
 
                 double amount;
                 try {
-                    amount = Double.parseDouble(this.inputScanner.nextLine());
+                    amount = Double.parseDouble(this.helpOnInput());
                 } catch (NumberFormatException var6) {
                     IO.println("Invalid amount.");
                     return;
@@ -411,6 +453,7 @@ public class BankSystem {
         /*
          - Similar process to the 'performDeposit' function
          - called when user types "4" when on customer menu */
+        helpContext = HelpContext.WITHDRAW;
 
         if (this.loggedInCustomer.getAccounts().isEmpty()) {
             IO.println("No accounts available.");
@@ -422,7 +465,7 @@ public class BankSystem {
             }
 
             IO.print("Enter account number to withdraw from: ");
-            String enteredAccountNumber = this.inputScanner.nextLine();
+            String enteredAccountNumber = this.helpOnInput();
             Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
             if (selectedAccount == null) {
                 IO.println("Account not found.");
@@ -431,7 +474,7 @@ public class BankSystem {
 
                 double amount;
                 try {
-                    amount = Double.parseDouble(this.inputScanner.nextLine());
+                    amount = Double.parseDouble(this.helpOnInput());
                 } catch (NumberFormatException var6) {
                     IO.println("Invalid amount.");
                     return;
@@ -454,7 +497,7 @@ public class BankSystem {
 
          */
         IO.print("Enter account number: ");
-        String accountNumber = inputScanner.nextLine();
+        String accountNumber = helpOnInput();
 
         Account userAccount = loggedInCustomer.getAccount(accountNumber);
 
@@ -472,7 +515,7 @@ public class BankSystem {
         IO.println("4. View Standing Orders");
         IO.println("5. Back");
 
-        switch (inputScanner.nextLine()) {
+        switch (helpOnInput()) {
             case "1": addDirectDebit(personalAccount); break;
             case "2": personalAccount.viewDirectDebits(); break;
             case "3": addStandingOrder(personalAccount); break;
@@ -487,7 +530,7 @@ public class BankSystem {
         //Input Validation
         while (debitName.trim().isEmpty()) {
             IO.print("Enter Debit name: ");
-            debitName = inputScanner.nextLine();
+            debitName = helpOnInput();
 
             if (debitName.trim().isEmpty()) {
                 IO.println("Debit name cannot be empty.");
@@ -499,7 +542,7 @@ public class BankSystem {
             IO.print("Enter Debit amount (£): ");
 
             try {
-                debitAmount = Double.parseDouble(inputScanner.nextLine());
+                debitAmount = Double.parseDouble(helpOnInput());
                 if (debitAmount <= 0) {
                     IO.println("Error: Debit amount must be greater than zero.");
                 }
@@ -510,7 +553,7 @@ public class BankSystem {
 
         // Are you sure?
         IO.print("You are about to add a Direct Debit of " + debitAmount + " to " + debitName + ". Are you sure? (y/n): ");
-        String confirmation = inputScanner.nextLine();
+        String confirmation = helpOnInput();
 
         if (!confirmation.equalsIgnoreCase("y")) {
             IO.println("Direct Debit cancelled.");
@@ -527,7 +570,7 @@ public class BankSystem {
         //Input Validation
         while (orderName.trim().isEmpty()) {
             IO.print("Enter Standing Order name: ");
-            orderName = inputScanner.nextLine();
+            orderName = helpOnInput();
 
             if (orderName.trim().isEmpty()) {
                 IO.println("Standing Order name cannot be empty.");
@@ -538,7 +581,7 @@ public class BankSystem {
         while (orderAmount <= 0) {
             IO.print("Enter Standing Order amount (£): ");
             try {
-                orderAmount = Double.parseDouble(inputScanner.nextLine());
+                orderAmount = Double.parseDouble(helpOnInput());
                 if (orderAmount <= 0) {
                     IO.println("Error: Amount must be greater than zero.");
                 }
@@ -548,7 +591,7 @@ public class BankSystem {
         }
         // Are you sure?
         IO.print("You are about to add a Standing Order of " + orderAmount + " to " + orderName + ". Are you sure? (y/n): ");
-        String confirmation = inputScanner.nextLine();
+        String confirmation = helpOnInput();
 
         if (!confirmation.equalsIgnoreCase("y")) {
             IO.println("Standing Order cancelled.");
