@@ -370,12 +370,11 @@ public class BankSystem {
         this.loggedInCustomer.addAccount(newAccount);
 
         // ✅ Save data so it persists
-        saveDataToCSV();
-
-        // ✅ Give the user feedback
-        IO.println("Account created successfully!");
-        IO.println("Account Number: " + newAccount.getAccountNumber() +
-                " | Balance: £" + String.format("%.2f", newAccount.balance));
+        newAccount.assignIdentifiers();
+        this.loggedInCustomer.addAccount(newAccount);
+        Logger.log("ACCOUNT CREATED: " + newAccount.getAccountNumber());
+        IO.println("Account created: " + newAccount.getAccountNumber());
+        this.saveDataToCSV();
     }
 
     private void performDeposit () {
