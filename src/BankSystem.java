@@ -336,7 +336,7 @@ public class BankSystem {
             IO.println("3. Deposit");
             IO.println("4. Withdraw");
             IO.println("5. Direct Debit / Standing Order (Personal Accounts only)");
-            IO.println("6. Chequebooks (Business Accounts only)");
+            IO.println("6. Cheque books (Business Accounts only)");
             IO.println("7. Help");
             IO.println("8. Switch Customer");
 
