@@ -6,17 +6,14 @@ public class BusinessAccount extends Account {
     private String businessType;
     private LocalDate lastFeeAppliedDate;
 
-    public BusinessAccount(String businessType) {
-        this.businessType = businessType;
-    }
 
     public BusinessAccount() {
-
+        this.accountType = "Business";
         overdraftEnabled = true;
         overdraftLimit = 500.00;
-        this.accountType = "Business";
 
     }
+
 
     protected String getSortCodeForType() {
         return "60-70-70";
@@ -40,6 +37,11 @@ public class BusinessAccount extends Account {
 
     public void setLastFeeAppliedDate(LocalDate date) {
         this.lastFeeAppliedDate = date;
-    }
+    }}
 
-}
+
+
+    // ========================
+    // CHEQUE BOOK METHODS
+    // ========================
+

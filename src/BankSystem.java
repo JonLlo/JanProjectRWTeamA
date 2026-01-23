@@ -408,7 +408,16 @@ public class BankSystem {
             // Create the account
             newAccount = new PersonalAccount();
             newAccount.balance = openingBalance;
-        } else {
+        }
+        else if (accountChoice.equals("2")) {
+            if (this.loggedInCustomer.hasISA()) {
+                IO.println("ISA already exists.");
+                return;
+            }
+
+            newAccount = new IsaAccount();
+        }
+        else {
             if (!accountChoice.equals("3")) {
                 IO.println("Invalid account type.");
                 return;
@@ -427,7 +436,7 @@ public class BankSystem {
                 return;
             }
 
-            newAccount = new BusinessAccount(businessType);
+            newAccount = new BusinessAccount();
         }
 
         newAccount.assignIdentifiers();
