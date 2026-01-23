@@ -20,7 +20,8 @@ public class BankSystem {
         DEPOSIT,
         WITHDRAW,
         OPEN_ACCOUNT,
-        PAYMENTS
+        PAYMENTS,
+        CHEQUEBOOK
     }
 
     private HelpContext helpContext = HelpContext.MAIN_MENU;
@@ -122,6 +123,7 @@ public class BankSystem {
                     case CUSTOMER_MENU -> showCustomerHelp();
                     case DEPOSIT -> showDepositHelp();
                     case WITHDRAW -> showWithdrawalHelp();
+                    case CHEQUEBOOK -> showChequeBookHelp();
                     case OPEN_ACCOUNT -> showOpenAccountHelp();
                     case PAYMENTS -> showPaymentsHelp();
                 }
@@ -176,6 +178,15 @@ public class BankSystem {
         inputScanner.nextLine();
 
 
+    }
+    private void showChequeBookHelp() {
+        IO.println("\n=== HELP: CHEQUE BOOKS (BUSINESS ACCOUNTS ONLY) ===");
+        IO.println("- Only business accounts are eligible for a cheque book.");
+        IO.println("- Each business account can receive only one cheque book.");
+        IO.println("- To request a cheque book, enter the account number of the eligible business account when prompted.");
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
     }
 
     private void showDepositHelp() {
@@ -325,7 +336,7 @@ public class BankSystem {
             IO.println("3. Deposit");
             IO.println("4. Withdraw");
             IO.println("5. Direct Debit / Standing Order (Personal Accounts only)");
-            IO.println("6. Cheque Books (Business Accounts only)");
+            IO.println("6. Chequebooks (Business Accounts only)");
             IO.println("7. Help");
             IO.println("8. Switch Customer");
 
@@ -345,10 +356,9 @@ public class BankSystem {
                 case "3":  performDeposit(); break;
                 case "4":  performWithdrawal(); break;
                 case "5": managePayments(); break;
-                case "6": IO.println("chequeBooks"); break;
+                case "6": manageChequeBooks(); break;
                 case "7": showCustomerHelp(); break;
                 case "8": stayInCustomerMenu = false; break;
-                default: IO.println(" choice.");
             }
         }
     }
@@ -363,7 +373,7 @@ public class BankSystem {
         IO.println("3. Deposit         - Add funds to a selected account. Amount must be > 0.");
         IO.println("4. Withdraw        - Remove funds from a selected account. Cannot exceed balance.");
         IO.println("5. Direct Debit/Standing Order            - Created standing order or direct debit. Personal accounts only");
-        IO.println("6. Cheque Books            - Issue Checkbooks. Business accounts only");
+        IO.println("6. Cheque Books            - Issue Cheque Books. Business accounts only");
         IO.println("7. Help            - Show this help message.");
         IO.println("8. Switch Customer - Log out and authenticate a different customer.");
         IO.println("\nNotes:");
@@ -495,6 +505,10 @@ public class BankSystem {
             }
         }
     }
+
+
+
+
     private void performWithdrawal () {
         /*
          - Similar process to the 'performDeposit' function
@@ -556,33 +570,76 @@ public class BankSystem {
             }
             IO.print("Enter account number to withdraw from (personal accounts only): ");
 
-        String accountNumber = helpOnInput();
+            String accountNumber = helpOnInput();
 
-        Account userAccount = loggedInCustomer.getAccount(accountNumber);
+            Account userAccount = loggedInCustomer.getAccount(accountNumber);
 
-        /* Check if account exists */
-        /* If account is not in personal accounts, exit function*/
-        if (!(userAccount instanceof PersonalAccount personalAccount)) {
+            /* Check if account exists */
+            /* If account is not in personal accounts, exit function*/
+            if (!(userAccount instanceof PersonalAccount personalAccount)) {
+                IO.println("Account not found.");
+                return;
+            }
+
+            IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
+            IO.println("1. Add Direct Debit");
+            IO.println("2. View Direct Debits");
+            IO.println("3. Add Standing Order");
+            IO.println("4. View Standing Orders");
+            IO.println("5. Back");
+
+            switch (helpOnInput()) {
+                case "1": addDirectDebit(personalAccount); break;
+                case "2": personalAccount.viewDirectDebits(); break;
+                case "3": addStandingOrder(personalAccount); break;
+                case "4": personalAccount.viewStandingOrders(); break;
+                case "5": return;
+                default: IO.println("Invalid choice 1.");
+            }
+        }}
+    private void manageChequeBooks() {
+        helpContext = HelpContext.CHEQUEBOOK;
+
+        if (this.loggedInCustomer.getAccounts().isEmpty()) {
+            IO.println("No accounts available.");
+            return;
+        }
+
+        // List all accounts
+        IO.println("Available accounts:");
+        for (Account account : this.loggedInCustomer.getAccounts().values()) {
+            IO.println(account.toString());
+        }
+
+        // Ask teller which account to use
+        IO.print("Enter account number to issue a cheque book (Business accounts only): ");
+        String enteredAccountNumber = this.helpOnInput();
+
+        Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+
+        if (selectedAccount == null) {
             IO.println("Account not found.");
             return;
         }
 
-        IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
-        IO.println("1. Add Direct Debit");
-        IO.println("2. View Direct Debits");
-        IO.println("3. Add Standing Order");
-        IO.println("4. View Standing Orders");
-        IO.println("5. Back");
-
-        switch (helpOnInput()) {
-            case "1": addDirectDebit(personalAccount); break;
-            case "2": personalAccount.viewDirectDebits(); break;
-            case "3": addStandingOrder(personalAccount); break;
-            case "4": personalAccount.viewStandingOrders(); break;
-            case "5": return;
-            default: IO.println("Invalid choice 1.");
+        // Check if it’s a BusinessAccount
+        if (!(selectedAccount instanceof BusinessAccount)) {
+            IO.println("Cheque books can only be issued for business accounts.");
+            return;
         }
-    }}
+
+        BusinessAccount businessAccount = (BusinessAccount) selectedAccount;
+
+        // Check if cheque book already issued
+        if (businessAccount.hasChequeBook()) {
+            IO.println("Cheque book has already been issued for this account.");
+        } else {
+            businessAccount.requestChequeBook();
+            Logger.log("CHEQUE BOOK ISSUED for " + businessAccount.getAccountNumber());
+            this.saveDataToCSV(); // save changes
+        }
+    }
+
     private void addDirectDebit (PersonalAccount account){
         /* Requires input validation */
         String debitName = "";

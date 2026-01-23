@@ -1,6 +1,18 @@
 import java.time.LocalDate;
 
 public class BusinessAccount extends Account {
+    private boolean chequeBookIssued = false; // Tracks cheque book issuance
+
+
+    public void requestChequeBook() {
+            chequeBookIssued = true;
+            System.out.println("Cheque book issued successfully.");
+    }
+
+
+    public boolean hasChequeBook() {
+        return chequeBookIssued;
+    }
 
     private final double ANNUAL_FEE = 120.00;
     private String businessType;
@@ -37,6 +49,11 @@ public class BusinessAccount extends Account {
 
     public void setLastFeeAppliedDate(LocalDate date) {
         this.lastFeeAppliedDate = date;
+
+
+
+
+
     }}
 
 
