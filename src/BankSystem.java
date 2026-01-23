@@ -344,6 +344,7 @@ public class BankSystem {
             IO.println("3. Deposit");
             IO.println("4. Withdraw");
             IO.println("5. Direct Debit / Standing Order");
+            IO.println("6. International Payment (Business)");
             IO.println("6. Help");
             IO.println("7. Switch Customer");
 
@@ -363,8 +364,9 @@ public class BankSystem {
                 case "3":  performDeposit(); break;
                 case "4":  performWithdrawal(); break;
                 case "5": managePayments(); break;
-                case "6": showCustomerHelp(); break;
-                case "7": stayInCustomerMenu = false; break;
+                case "6": performInternationalPayment(); break;
+                case "7": showCustomerHelp(); break;
+                case "8": stayInCustomerMenu = false; break;
                 default: IO.println(" choice.");
             }
         }
@@ -497,6 +499,43 @@ public class BankSystem {
             }
         }
     }
+
+    private void performInternationalPayment() {
+
+        IO.print("Enter business account number: ");
+        String accountNumber = inputScanner.nextLine();
+
+        Account account = loggedInCustomer.getAccount(accountNumber);
+
+        if (!(account instanceof BusinessAccount businessAccount)) {
+            IO.println("International payments are only available for Business Accounts.");
+            return;
+        }
+
+        IO.print("Enter foreign amount: ");
+        double foreignAmount;
+        try {
+            foreignAmount = Double.parseDouble(inputScanner.nextLine());
+        } catch (NumberFormatException e) {
+            IO.println("Invalid amount.");
+            return;
+        }
+
+        IO.print("Enter exchange rate to GBP: ");
+        double exchangeRate;
+        try {
+            exchangeRate = Double.parseDouble(inputScanner.nextLine());
+        } catch (NumberFormatException e) {
+            IO.println("Invalid exchange rate.");
+            return;
+        }
+
+        businessAccount.internationalPayment(foreignAmount, exchangeRate);
+
+        saveDataToCSV(); // persist balance change
+    }
+
+
     private void managePayments () {
      /*
          - here we define a function to manage payments.
