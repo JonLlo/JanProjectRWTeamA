@@ -3,7 +3,8 @@
 
 
 
-public class SimpleBank {
+public class
+SimpleBank {
 
     //we use string[] args because we are working with the command line.
     public static void main(String[] args) {

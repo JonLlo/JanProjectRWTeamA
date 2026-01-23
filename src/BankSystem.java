@@ -20,7 +20,8 @@ public class BankSystem {
         DEPOSIT,
         WITHDRAW,
         OPEN_ACCOUNT,
-        PAYMENTS
+        PAYMENTS,
+        CHEQUEBOOK
     }
 
     private HelpContext helpContext = HelpContext.MAIN_MENU;
@@ -122,6 +123,7 @@ public class BankSystem {
                     case CUSTOMER_MENU -> showCustomerHelp();
                     case DEPOSIT -> showDepositHelp();
                     case WITHDRAW -> showWithdrawalHelp();
+                    case CHEQUEBOOK -> showChequeBookHelp();
                     case OPEN_ACCOUNT -> showOpenAccountHelp();
                     case PAYMENTS -> showPaymentsHelp();
                 }
@@ -177,26 +179,16 @@ public class BankSystem {
 
 
     }
-    private void showCustomerHelp() {
-
-        IO.println("\n=== HELP: CUSTOMER MENU ===");
-        IO.println("1. View Accounts   - List all accounts for this customer.");
-        IO.println("2. Open Account    - Create a new account. Rules:");
-        IO.println("    • Personal Account: Minimum £1 opening balance, multiple allowed.");
-        IO.println("    • ISA Account: Only 1 per customer.");
-        IO.println("    • Business Account: Only 1 per customer, restricted types.");
-        IO.println("3. Deposit         - Add funds to a selected account. Amount must be > 0.");
-        IO.println("4. Withdraw        - Remove funds from a selected account. Cannot exceed balance.");
-        IO.println("5. Help            - Show this help message.");
-        IO.println("6. Switch Customer - Log out and authenticate a different customer.");
-        IO.println("\nNotes:");
-        IO.println("- All transactions are logged with timestamps.");
-        IO.println("- Account numbers are unique and required for selecting accounts.");
+    private void showChequeBookHelp() {
+        IO.println("\n=== HELP: CHEQUE BOOKS AND LOANS (BUSINESS ACCOUNTS ONLY) ===");
+        IO.println("- Only business accounts are eligible for a cheque books or loans.");
+        IO.println("- Each business account can receive only one cheque book.");
+        IO.println("- To request a cheque book or loan, enter the account number of the eligible business account when prompted.");
 
         IO.println("\nPress Enter to return...");
         inputScanner.nextLine();
-
     }
+
     private void showDepositHelp() {
         IO.println("\n=== HELP: DEPOSIT ===");
         IO.println("- Select an account by account number.");
@@ -239,11 +231,24 @@ public class BankSystem {
                         }
                     }
                     // ACCOUNT
-                    writer.println("A," + customer.getId() + "," + type + "," +
-                            account.getAccountNumber() + "," +
-                            account.sortCode + "," +
-                            String.format("%.2f", account.balance) + "," +
-                            lastFeeDate);
+                    if (account instanceof BusinessAccount ba) {
+                        // add loan and cheque book info for business accounts
+                        writer.println("A," + customer.getId() + "," + type + "," +
+                                account.getAccountNumber() + "," +
+                                account.sortCode + "," +
+                                String.format("%.2f", account.balance) + "," +
+                                lastFeeDate + "," +
+                                ba.hasLoan() + "," +
+                                ba.getLoanAmount() + "," +
+                                ba.hasChequeBook());
+                    } else {
+                        // existing line for non-business accounts
+                        writer.println("A," + customer.getId() + "," + type + "," +
+                                account.getAccountNumber() + "," +
+                                account.sortCode + "," +
+                                String.format("%.2f", account.balance) + "," +
+                                lastFeeDate);
+                    }
                     // DIRECT DEBITS
                     for (DirectDebit dd : account.getDirectDebits()) {
                         writer.println("D," + customer.getId() + "," +
@@ -257,6 +262,7 @@ public class BankSystem {
                                 account.getAccountNumber() + "," +
                                 so.getPayee() + "," +
                                 String.format("%.2f", so.getAmount()));
+                    //LOANS AND CHECKBOOKS
                     }
                 }
             }
@@ -293,10 +299,16 @@ public class BankSystem {
                             case "B":
                                 account = new BusinessAccount();
                                 if (!lastFeeDate.isEmpty()) {
-                                    ((BusinessAccount) account)
-                                            .setLastFeeAppliedDate(LocalDate.parse(lastFeeDate));
+                                    ((BusinessAccount) account).setLastFeeAppliedDate(LocalDate.parse(lastFeeDate));
                                 }
-                                break;
+                                // NEW: load loan and cheque book info if present
+                                if (p.length > 8) { // loan info
+                                    ((BusinessAccount) account).setLoanActive(Boolean.parseBoolean(p[7]));
+                                    ((BusinessAccount) account).setLoanAmount(Double.parseDouble(p[8]));
+                                }
+                                if (p.length > 9) { // cheque book
+                                    ((BusinessAccount) account).setChequeBookIssued(Boolean.parseBoolean(p[9]));
+                                }
                         }
 
                         if (account == null) break;
@@ -343,9 +355,10 @@ public class BankSystem {
             IO.println("2. Open Account");
             IO.println("3. Deposit");
             IO.println("4. Withdraw");
-            IO.println("5. Direct Debit / Standing Order");
-            IO.println("6. Help");
-            IO.println("7. Switch Customer");
+            IO.println("5. Direct Debit / Standing Order (Personal Accounts only)");
+            IO.println("6. Loans / Cheque Books (Business Accounts only)");
+            IO.println("7. Help");
+            IO.println("8. Switch Customer");
 
 
             String choice = helpOnInput();
@@ -363,11 +376,50 @@ public class BankSystem {
                 case "3":  performDeposit(); break;
                 case "4":  performWithdrawal(); break;
                 case "5": managePayments(); break;
-                case "6": showCustomerHelp(); break;
-                case "7": stayInCustomerMenu = false; break;
-                default: IO.println(" choice.");
+                case "6":
+                    IO.println("Do you want to take out a loan or a cheque book?");
+                    IO.println("1. Loan");
+                    IO.println("2. Cheque Book");
+                    IO.print("Enter choice (1 or 2): ");
+                    String loanChoice = this.helpOnInput();
+
+                    switch (loanChoice) {
+                        case "1":
+                            manageLoan();       // Call your loan handling method
+                            break;
+                        case "2":
+                            manageChequeBooks(); // Call your cheque book handling method
+                            break;
+                        default:
+                            IO.println("Invalid choice. Returning to customer menu.");
+                    }
+                    break;
+                case "7": showCustomerHelp(); break;
+                case "8": stayInCustomerMenu = false; break;
             }
         }
+    }
+    private void showCustomerHelp() {
+
+        IO.println("\n=== HELP: CUSTOMER MENU ===");
+        IO.println("1. View Accounts   - List all accounts for this customer.");
+        IO.println("2. Open Account    - Create a new account. Rules:");
+        IO.println("    • Personal Account: Minimum £1 opening balance, multiple allowed.");
+        IO.println("    • ISA Account: Only 1 per customer.");
+        IO.println("    • Business Account: Only 1 per customer, restricted types.");
+        IO.println("3. Deposit         - Add funds to a selected account. Amount must be > 0.");
+        IO.println("4. Withdraw        - Remove funds from a selected account. Cannot exceed balance.");
+        IO.println("5. Direct Debit/Standing Order            - Created standing order or direct debit. Personal accounts only");
+        IO.println("6. Cheque Books            - Issue Cheque Books. Business accounts only");
+        IO.println("7. Help            - Show this help message.");
+        IO.println("8. Switch Customer - Log out and authenticate a different customer.");
+        IO.println("\nNotes:");
+        IO.println("- All transactions are logged with timestamps.");
+        IO.println("- Account numbers are unique and required for selecting accounts.");
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+
     }
     private void openNewAccount() {
         helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
@@ -375,16 +427,48 @@ public class BankSystem {
         String accountChoice = this.inputScanner.nextLine();
         Account newAccount = null;
         if (accountChoice.equals("1")) {
+            IO.println("To open a Personal Account, you must have:");
+
+            IO.print("Do you have a Photo ID (passport or driving licence)? (y/n): ");
+            String photoId = helpOnInput();
+            if (!photoId.equalsIgnoreCase("y")) {
+                IO.println("Cannot open Personal Account without Photo ID. Account creation cancelled.");
+                return;
+            }
+
+            IO.print("Do you have an Address ID (utility bill or council tax letter)? (y/n): ");
+            String addressId = helpOnInput();
+            if (!addressId.equalsIgnoreCase("y")) {
+                IO.println("Cannot open Personal Account without Address ID. Account creation cancelled.");
+                return;
+            }
+
+            // Ask for opening balance ≥ £1
+            double openingBalance = 0.0;
+            while (openingBalance < 1.0) {
+                IO.print("Enter opening balance (£, minimum £1): ");
+                try {
+                    openingBalance = Double.parseDouble(helpOnInput());
+                } catch (NumberFormatException e) {
+                    IO.println("Invalid input. Please enter a number.");
+                }
+                if (openingBalance < 1.0) {
+                    IO.println("Opening balance must be at least £1.");
+                }
+            }
+
+            // Create the account
             newAccount = new PersonalAccount();
-            newAccount.balance = (double)1.0F;
-        } else if (accountChoice.equals("2")) {
+            newAccount.balance = openingBalance;
+        }
+        else if (accountChoice.equals("2")) {
             if (this.loggedInCustomer.hasISA()) {
                 IO.println("ISA already exists.");
                 return;
             }
 
-            newAccount = new IsaAccount();
-        } else {
+            newAccount = new IsaAccount(); }
+        else {
             if (!accountChoice.equals("3")) {
                 IO.println("Invalid account type.");
                 return;
@@ -403,7 +487,7 @@ public class BankSystem {
                 return;
             }
 
-            newAccount = new BusinessAccount(businessType);
+            newAccount = new BusinessAccount();
         }
 
         newAccount.assignIdentifiers();
@@ -458,6 +542,10 @@ public class BankSystem {
             }
         }
     }
+
+
+
+
     private void performWithdrawal () {
         /*
          - Similar process to the 'performDeposit' function
@@ -506,34 +594,151 @@ public class BankSystem {
 
          */
         helpContext = HelpContext.PAYMENTS;      // before managing payments
-        IO.print("Enter account number: ");
-        String accountNumber = helpOnInput();
 
-        Account userAccount = loggedInCustomer.getAccount(accountNumber);
 
-        /* Check if account exists */
-        /* If account is not in personal accounts, exit function*/
-        if (!(userAccount instanceof PersonalAccount personalAccount)) {
+
+        if (this.loggedInCustomer.getAccounts().isEmpty()) {
+            IO.println("No accounts available.");
+        } else {
+            IO.println("Available accounts:");
+
+            for (Account account : this.loggedInCustomer.getAccounts().values()) {
+                IO.println(account.toString());
+            }
+            IO.print("Enter account number to withdraw from (personal accounts only): ");
+
+            String accountNumber = helpOnInput();
+
+            Account userAccount = loggedInCustomer.getAccount(accountNumber);
+
+            /* Check if account exists */
+            /* If account is not in personal accounts, exit function*/
+            if (!(userAccount instanceof PersonalAccount personalAccount)) {
+                IO.println("Account not found.");
+                return;
+            }
+
+            IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
+            IO.println("1. Add Direct Debit");
+            IO.println("2. View Direct Debits");
+            IO.println("3. Add Standing Order");
+            IO.println("4. View Standing Orders");
+            IO.println("5. Back");
+
+            switch (helpOnInput()) {
+                case "1": addDirectDebit(personalAccount); break;
+                case "2": personalAccount.viewDirectDebits(); break;
+                case "3": addStandingOrder(personalAccount); break;
+                case "4": personalAccount.viewStandingOrders(); break;
+                case "5": return;
+                default: IO.println("Invalid choice 1.");
+            }
+        }}
+    private void manageChequeBooks() {
+        helpContext = HelpContext.CHEQUEBOOK;
+
+        if (this.loggedInCustomer.getAccounts().isEmpty()) {
+            IO.println("No accounts available.");
+            return;
+        }
+
+        // List all accounts
+        IO.println("Available accounts:");
+        for (Account account : this.loggedInCustomer.getAccounts().values()) {
+            IO.println(account.toString());
+        }
+
+        // Ask teller which account to use
+        IO.print("Enter account number to issue a cheque book (Business accounts only): ");
+        String enteredAccountNumber = this.helpOnInput();
+
+        Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+
+        if (selectedAccount == null) {
             IO.println("Account not found.");
             return;
         }
 
-        IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
-        IO.println("1. Add Direct Debit");
-        IO.println("2. View Direct Debits");
-        IO.println("3. Add Standing Order");
-        IO.println("4. View Standing Orders");
-        IO.println("5. Back");
-
-        switch (helpOnInput()) {
-            case "1": addDirectDebit(personalAccount); break;
-            case "2": personalAccount.viewDirectDebits(); break;
-            case "3": addStandingOrder(personalAccount); break;
-            case "4": personalAccount.viewStandingOrders(); break;
-            case "5": return;
-            default: IO.println("Invalid choice 1.");
+        // Check if it’s a BusinessAccount
+        if (!(selectedAccount instanceof BusinessAccount)) {
+            IO.println("Cheque books can only be issued for business accounts.");
+            return;
         }
+
+        BusinessAccount businessAccount = (BusinessAccount) selectedAccount;
+
+        // Check if cheque book already issued
+        if (businessAccount.hasChequeBook()) {
+            IO.println("Cheque book has already been issued for this account.");
+        } else {
+            businessAccount.requestChequeBook();
+            Logger.log("CHEQUE BOOK ISSUED for " + businessAccount.getAccountNumber());
+
+            this.saveDataToCSV(); // save changes
+        }
+
+
     }
+    private void manageLoan() {
+
+        if (this.loggedInCustomer.getAccounts().isEmpty()) {
+            IO.println("No accounts available.");
+            return;
+        }
+
+        // List all accounts
+        IO.println("Available accounts:");
+        for (Account account : this.loggedInCustomer.getAccounts().values()) {
+            IO.println(account.toString());
+        }
+
+        // Ask teller which account to use
+        IO.print("Enter account number to request a loan (Business accounts only): ");
+        String enteredAccountNumber = this.helpOnInput();
+
+        Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+
+        if (selectedAccount == null) {
+            IO.println("Account not found.");
+            return;
+        }
+
+        // Check if it’s a BusinessAccount
+        if (!(selectedAccount instanceof BusinessAccount)) {
+            IO.println("Loans can only be requested for business accounts.");
+            return;
+        }
+
+        BusinessAccount businessAccount = (BusinessAccount) selectedAccount;
+
+        // Check if a loan is already active
+        if (businessAccount.hasLoan()) {
+            IO.println("Note: A loan of £" + businessAccount.getLoanAmount() + " is already active for this account.");
+        }
+
+        // Ask teller for loan amount
+        IO.print("Enter loan amount: ");
+        double amount;
+        try {
+            amount = Double.parseDouble(this.helpOnInput());
+        } catch (NumberFormatException e) {
+            IO.println("Invalid amount entered.");
+            return;
+        }
+
+        if (amount <= 0) {
+            IO.println("Loan amount must be greater than 0.");
+            return;
+        }
+
+        // Request the loan
+        businessAccount.requestLoan(amount);
+
+        Logger.log("LOAN REQUEST £" + amount + " for " + businessAccount.getAccountNumber());
+        this.saveDataToCSV(); // save changes
+    }
+
+
     private void addDirectDebit (PersonalAccount account){
         /* Requires input validation */
         String debitName = "";
