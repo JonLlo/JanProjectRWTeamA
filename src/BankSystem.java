@@ -177,26 +177,7 @@ public class BankSystem {
 
 
     }
-    private void showCustomerHelp() {
 
-        IO.println("\n=== HELP: CUSTOMER MENU ===");
-        IO.println("1. View Accounts   - List all accounts for this customer.");
-        IO.println("2. Open Account    - Create a new account. Rules:");
-        IO.println("    • Personal Account: Minimum £1 opening balance, multiple allowed.");
-        IO.println("    • ISA Account: Only 1 per customer.");
-        IO.println("    • Business Account: Only 1 per customer, restricted types.");
-        IO.println("3. Deposit         - Add funds to a selected account. Amount must be > 0.");
-        IO.println("4. Withdraw        - Remove funds from a selected account. Cannot exceed balance.");
-        IO.println("5. Help            - Show this help message.");
-        IO.println("6. Switch Customer - Log out and authenticate a different customer.");
-        IO.println("\nNotes:");
-        IO.println("- All transactions are logged with timestamps.");
-        IO.println("- Account numbers are unique and required for selecting accounts.");
-
-        IO.println("\nPress Enter to return...");
-        inputScanner.nextLine();
-
-    }
     private void showDepositHelp() {
         IO.println("\n=== HELP: DEPOSIT ===");
         IO.println("- Select an account by account number.");
@@ -343,9 +324,10 @@ public class BankSystem {
             IO.println("2. Open Account");
             IO.println("3. Deposit");
             IO.println("4. Withdraw");
-            IO.println("5. Direct Debit / Standing Order");
-            IO.println("6. Help");
-            IO.println("7. Switch Customer");
+            IO.println("5. Direct Debit / Standing Order (Personal Accounts only)");
+            IO.println("6. Cheque Books (Business Accounts only)");
+            IO.println("7. Help");
+            IO.println("8. Switch Customer");
 
 
             String choice = helpOnInput();
@@ -363,11 +345,34 @@ public class BankSystem {
                 case "3":  performDeposit(); break;
                 case "4":  performWithdrawal(); break;
                 case "5": managePayments(); break;
-                case "6": showCustomerHelp(); break;
-                case "7": stayInCustomerMenu = false; break;
+                case "6": IO.println("chequeBooks"); break;
+                case "7": showCustomerHelp(); break;
+                case "8": stayInCustomerMenu = false; break;
                 default: IO.println(" choice.");
             }
         }
+    }
+    private void showCustomerHelp() {
+
+        IO.println("\n=== HELP: CUSTOMER MENU ===");
+        IO.println("1. View Accounts   - List all accounts for this customer.");
+        IO.println("2. Open Account    - Create a new account. Rules:");
+        IO.println("    • Personal Account: Minimum £1 opening balance, multiple allowed.");
+        IO.println("    • ISA Account: Only 1 per customer.");
+        IO.println("    • Business Account: Only 1 per customer, restricted types.");
+        IO.println("3. Deposit         - Add funds to a selected account. Amount must be > 0.");
+        IO.println("4. Withdraw        - Remove funds from a selected account. Cannot exceed balance.");
+        IO.println("5. Direct Debit/Standing Order            - Created standing order or direct debit. Personal accounts only");
+        IO.println("6. Cheque Books            - Issue Checkbooks. Business accounts only");
+        IO.println("7. Help            - Show this help message.");
+        IO.println("8. Switch Customer - Log out and authenticate a different customer.");
+        IO.println("\nNotes:");
+        IO.println("- All transactions are logged with timestamps.");
+        IO.println("- Account numbers are unique and required for selecting accounts.");
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+
     }
     private void openNewAccount() {
         helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
@@ -415,8 +420,7 @@ public class BankSystem {
                 return;
             }
 
-            newAccount = new IsaAccount();
-        }
+            newAccount = new IsaAccount(); }
         else {
             if (!accountChoice.equals("3")) {
                 IO.println("Invalid account type.");
@@ -539,7 +543,19 @@ public class BankSystem {
 
          */
         helpContext = HelpContext.PAYMENTS;      // before managing payments
-        IO.print("Enter account number: ");
+
+
+
+        if (this.loggedInCustomer.getAccounts().isEmpty()) {
+            IO.println("No accounts available.");
+        } else {
+            IO.println("Available accounts:");
+
+            for (Account account : this.loggedInCustomer.getAccounts().values()) {
+                IO.println(account.toString());
+            }
+            IO.print("Enter account number to withdraw from (personal accounts only): ");
+
         String accountNumber = helpOnInput();
 
         Account userAccount = loggedInCustomer.getAccount(accountNumber);
@@ -566,7 +582,7 @@ public class BankSystem {
             case "5": return;
             default: IO.println("Invalid choice 1.");
         }
-    }
+    }}
     private void addDirectDebit (PersonalAccount account){
         /* Requires input validation */
         String debitName = "";
