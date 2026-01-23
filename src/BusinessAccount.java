@@ -1,4 +1,6 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BusinessAccount extends Account {
 
@@ -7,6 +9,9 @@ public class BusinessAccount extends Account {
 
     private String businessType;
     private LocalDate lastFeeAppliedDate;
+
+    // NEW: store international payments
+    private List<InternationalPayment> internationalPayments = new ArrayList<>();
 
     public BusinessAccount(String businessType) {
         this.businessType = businessType;
@@ -48,6 +53,7 @@ public class BusinessAccount extends Account {
         this.lastFeeAppliedDate = date;
     }
 
+    // ===== INTERNATIONAL PAYMENT (NORMAL USE) =====
     public void internationalPayment(double foreignAmount, double exchangeRate) {
 
         if (foreignAmount <= 0 || exchangeRate <= 0) {
@@ -59,16 +65,31 @@ public class BusinessAccount extends Account {
         double fee = gbpAmount * INTERNATIONAL_FEE_RATE;
         double totalCost = gbpAmount + fee;
 
-        if (totalCost > balance + (overdraftEnabled ? overdraftLimit : 0)) {
+        double availableFunds = balance + (overdraftEnabled ? overdraftLimit : 0);
+
+        if (totalCost > availableFunds) {
             IO.println("Insufficient funds for international transaction.");
             return;
         }
 
         balance -= totalCost;
 
+        internationalPayments.add(
+                new InternationalPayment(foreignAmount, exchangeRate)
+        );
+
         IO.println("International payment successful.");
         IO.println("Converted amount: £" + String.format("%.2f", gbpAmount));
         IO.println("Transaction fee: £" + String.format("%.2f", fee));
         IO.println("New balance: £" + String.format("%.2f", balance));
+    }
+
+    // ===== CSV LOAD (NO BALANCE CHANGE) =====
+    public void addInternationalPaymentFromCSV(InternationalPayment ip) {
+        internationalPayments.add(ip);
+    }
+
+    public List<InternationalPayment> getInternationalPayments() {
+        return internationalPayments;
     }
 }
