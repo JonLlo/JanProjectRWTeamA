@@ -375,8 +375,26 @@ public class BankSystem {
         String accountChoice = this.inputScanner.nextLine();
         Account newAccount = null;
         if (accountChoice.equals("1")) {
+            double openingBalance = 0.0;
+
+            // Keep asking until they enter ≥ 1
+            while (openingBalance < 1.0) {
+                IO.print("Enter opening balance (£, minimum £1): ");
+                try {
+                    openingBalance = Double.parseDouble(helpOnInput());
+                } catch (NumberFormatException e) {
+                    IO.println("Invalid input. Please enter a number.");
+                    continue;
+                }
+
+                if (openingBalance < 1.0) {
+                    IO.println("Opening balance must be at least £1.");
+                }
+            }
+
             newAccount = new PersonalAccount();
-            newAccount.balance = (double)1.0F;
+            newAccount.balance = openingBalance;
+
         } else if (accountChoice.equals("2")) {
             if (this.loggedInCustomer.hasISA()) {
                 IO.println("ISA already exists.");
