@@ -375,33 +375,39 @@ public class BankSystem {
         String accountChoice = this.inputScanner.nextLine();
         Account newAccount = null;
         if (accountChoice.equals("1")) {
-            double openingBalance = 0.0;
+            IO.println("To open a Personal Account, you must have:");
 
-            // Keep asking until they enter ≥ 1
+            IO.print("Do you have a Photo ID (passport or driving licence)? (y/n): ");
+            String photoId = helpOnInput();
+            if (!photoId.equalsIgnoreCase("y")) {
+                IO.println("Cannot open Personal Account without Photo ID. Account creation cancelled.");
+                return;
+            }
+
+            IO.print("Do you have an Address ID (utility bill or council tax letter)? (y/n): ");
+            String addressId = helpOnInput();
+            if (!addressId.equalsIgnoreCase("y")) {
+                IO.println("Cannot open Personal Account without Address ID. Account creation cancelled.");
+                return;
+            }
+
+            // Ask for opening balance ≥ £1
+            double openingBalance = 0.0;
             while (openingBalance < 1.0) {
                 IO.print("Enter opening balance (£, minimum £1): ");
                 try {
                     openingBalance = Double.parseDouble(helpOnInput());
                 } catch (NumberFormatException e) {
                     IO.println("Invalid input. Please enter a number.");
-                    continue;
                 }
-
                 if (openingBalance < 1.0) {
                     IO.println("Opening balance must be at least £1.");
                 }
             }
 
+            // Create the account
             newAccount = new PersonalAccount();
             newAccount.balance = openingBalance;
-
-        } else if (accountChoice.equals("2")) {
-            if (this.loggedInCustomer.hasISA()) {
-                IO.println("ISA already exists.");
-                return;
-            }
-
-            newAccount = new IsaAccount();
         } else {
             if (!accountChoice.equals("3")) {
                 IO.println("Invalid account type.");
