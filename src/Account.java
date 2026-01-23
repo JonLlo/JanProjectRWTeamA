@@ -6,6 +6,8 @@ public abstract class Account {
     protected String accountNumber;
     protected String sortCode;
     protected double balance;
+    protected String accountType;
+
 
     protected boolean overdraftEnabled = false;
     protected double overdraftLimit = 0.0;
@@ -96,7 +98,7 @@ public abstract class Account {
 
     @Override
     public String toString() {
-        return "Account: " + accountNumber +
+        return accountType + " Account: " + accountNumber +
                 " | Sort: " + sortCode +
                 " | Balance: £" + String.format("%.2f", balance);
     }

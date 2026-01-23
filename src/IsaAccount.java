@@ -1,6 +1,9 @@
 public class IsaAccount extends Account {
     private final double INTEREST_RATE = 0.0275;
 
+    public IsaAccount() {
+        this.accountType = "ISA";
+    }
 
     protected String getSortCodeForType() {
         return "60-60-70";
@@ -14,4 +17,6 @@ public class IsaAccount extends Account {
         balance += interest;
         IO.println("ISA interest applied: £" + String.format("%.2f", interest));
     }
+
+
 }

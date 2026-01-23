@@ -14,6 +14,8 @@ public class BusinessAccount extends Account {
 
         overdraftEnabled = true;
         overdraftLimit = 500.00;
+        this.accountType = "Business";
+
     }
 
     protected String getSortCodeForType() {
