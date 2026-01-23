@@ -268,7 +268,7 @@ public class BankSystem {
                                 String.format("%.2f", so.getAmount()));
                     }
 
-                    // 🌍 INTERNATIONAL PAYMENTS (Business only)
+                    // INTERNATIONAL PAYMENTS (Business only)
                     if (account instanceof BusinessAccount businessAccount) {
                         for (InternationalPayment ip : businessAccount.getInternationalPayments()) {
                             writer.println("IP," + customer.getId() + "," +
