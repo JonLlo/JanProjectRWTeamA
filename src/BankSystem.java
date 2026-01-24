@@ -214,15 +214,23 @@ public class BankSystem {
     // added saveDataToCSV and loadDataFromCSV() to this section
     private void saveDataToCSV() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(DATA_FILE_NAME))) {
+
             for (Customer customer : customerMap.values()) {
+
+                // CUSTOMER
                 writer.println("C," + customer.getId() + "," + customer.getName());
+
                 for (Account account : customer.getAccounts().values()) {
+
+                    // ACCOUNT TYPE
                     String type = "P";
                     if (account instanceof IsaAccount) {
                         type = "I";
                     } else if (account instanceof BusinessAccount) {
                         type = "B";
                     }
+
+                    // LAST BUSINESS FEE DATE
                     String lastFeeDate = "";
                     if (account instanceof BusinessAccount) {
                         LocalDate d = ((BusinessAccount) account).getLastFeeAppliedDate();
@@ -230,10 +238,12 @@ public class BankSystem {
                             lastFeeDate = d.toString();
                         }
                     }
-                    // ACCOUNT
+
+                    // ACCOUNT LINE
                     if (account instanceof BusinessAccount ba) {
-                        // add loan and cheque book info for business accounts
-                        writer.println("A," + customer.getId() + "," + type + "," +
+                        writer.println("A," +
+                                customer.getId() + "," +
+                                type + "," +
                                 account.getAccountNumber() + "," +
                                 account.sortCode + "," +
                                 String.format("%.2f", account.balance) + "," +
@@ -242,35 +252,53 @@ public class BankSystem {
                                 ba.getLoanAmount() + "," +
                                 ba.hasChequeBook());
                     } else {
-                        // existing line for non-business accounts
-                        writer.println("A," + customer.getId() + "," + type + "," +
+                        writer.println("A," +
+                                customer.getId() + "," +
+                                type + "," +
                                 account.getAccountNumber() + "," +
                                 account.sortCode + "," +
                                 String.format("%.2f", account.balance) + "," +
                                 lastFeeDate);
                     }
+
                     // DIRECT DEBITS
                     for (DirectDebit dd : account.getDirectDebits()) {
-                        writer.println("D," + customer.getId() + "," +
+                        writer.println("D," +
+                                customer.getId() + "," +
                                 account.getAccountNumber() + "," +
                                 dd.getPayee() + "," +
                                 String.format("%.2f", dd.getAmount()));
                     }
+
                     // STANDING ORDERS
                     for (StandingOrder so : account.getStandingOrders()) {
-                        writer.println("S," + customer.getId() + "," +
+                        writer.println("S," +
+                                customer.getId() + "," +
                                 account.getAccountNumber() + "," +
                                 so.getPayee() + "," +
                                 String.format("%.2f", so.getAmount()));
-                    //LOANS AND CHECKBOOKS
+                    }
+
+                    // INTERNATIONAL PAYMENTS (BUSINESS ONLY)
+                    if (account instanceof BusinessAccount ba) {
+                        for (InternationalPayment ip : ba.getInternationalPayments()) {
+                            writer.println("IP," +
+                                    customer.getId() + "," +
+                                    account.getAccountNumber() + "," +
+                                    String.format("%.2f", ip.getForeignAmount()) + "," +
+                                    String.format("%.4f", ip.getExchangeRate()));
+                        }
                     }
                 }
             }
+
             IO.println("CSV data saved.");
+
         } catch (Exception e) {
             IO.println("Error saving CSV.");
         }
     }
+
     private void loadDataFromCSV() {
         File file = new File(BankSystem.DATA_FILE_NAME);
         if (!file.exists()) return;
@@ -339,6 +367,23 @@ public class BankSystem {
                         }
                         break;
                     }
+                    case "IP": {
+                        Customer customer = customerMap.get(p[1]);
+                        if (customer == null) break;
+
+                        Account account = customer.getAccount(p[2]);
+
+                        if (account instanceof BusinessAccount businessAccount) {
+                            double foreignAmount = Double.parseDouble(p[3]);
+                            double exchangeRate = Double.parseDouble(p[4]);
+
+                            businessAccount.loadInternationalPayment(
+                                    new InternationalPayment(foreignAmount, exchangeRate)
+                            );
+                        }
+                        break;
+                    }
+
                 }
             }
             IO.println("CSV data loaded.");
@@ -357,8 +402,9 @@ public class BankSystem {
             IO.println("4. Withdraw");
             IO.println("5. Direct Debit / Standing Order (Personal Accounts only)");
             IO.println("6. Loans / Cheque Books (Business Accounts only)");
-            IO.println("7. Help");
-            IO.println("8. Switch Customer");
+            IO.println("7. International Payment (Business)");
+            IO.println("8. Help");
+            IO.println("9. Switch Customer");
 
 
             String choice = helpOnInput();
@@ -394,8 +440,9 @@ public class BankSystem {
                             IO.println("Invalid choice. Returning to customer menu.");
                     }
                     break;
-                case "7": showCustomerHelp(); break;
-                case "8": stayInCustomerMenu = false; break;
+                case "7": performInternationalPayment(); break;
+                case "8": showCustomerHelp(); break;
+                case "9": stayInCustomerMenu = false; break;
             }
         }
     }
@@ -496,6 +543,42 @@ public class BankSystem {
         IO.println("Account created: " + newAccount.getAccountNumber());
         this.saveDataToCSV();
     }
+
+    private void performInternationalPayment() {
+
+        IO.print("Enter business account number: ");
+        String accountNumber = inputScanner.nextLine();
+
+        Account account = loggedInCustomer.getAccount(accountNumber);
+
+        if (!(account instanceof BusinessAccount businessAccount)) {
+            IO.println("International payments are only available for Business Accounts.");
+            return;
+        }
+
+        IO.print("Enter foreign amount: ");
+        double foreignAmount;
+        try {
+            foreignAmount = Double.parseDouble(inputScanner.nextLine());
+        } catch (NumberFormatException e) {
+            IO.println("Invalid amount.");
+            return;
+        }
+
+        IO.print("Enter exchange rate to GBP: ");
+        double exchangeRate;
+        try {
+            exchangeRate = Double.parseDouble(inputScanner.nextLine());
+        } catch (NumberFormatException e) {
+            IO.println("Invalid exchange rate.");
+            return;
+        }
+
+        businessAccount.internationalPayment(foreignAmount, exchangeRate);
+
+        saveDataToCSV(); // persist balance change
+    }
+
 
     private void performDeposit () {
         /*

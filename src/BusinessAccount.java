@@ -1,59 +1,58 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BusinessAccount extends Account {
-    private boolean chequeBookIssued = false; // Tracks cheque book issuance
-    private boolean loanActive = false;        // Track if a loan is active
-    private double loanAmount = 0.0;           // Amount of loan granted
+
+    // --- Existing fields ---
+    private boolean chequeBookIssued = false;
+    private boolean loanActive = false;
+    private double loanAmount = 0.0;
+
+    private final double ANNUAL_FEE = 120.00;
+    private LocalDate lastFeeAppliedDate;
+
+    // --- International trading ---
+    private final double INTERNATIONAL_FEE_RATE = 0.02; // 2% fee
+    private List<InternationalPayment> internationalPayments = new ArrayList<>();
 
     public BusinessAccount() {
         this.accountType = "Business";
         overdraftEnabled = true;
         overdraftLimit = 500.00;
-
     }
+
+    // --- Cheque book ---
     public void requestChequeBook() {
-            chequeBookIssued = true;
-            System.out.println("Cheque book issued successfully.");
+        chequeBookIssued = true;
+        System.out.println("Cheque book issued successfully.");
     }
-
 
     public boolean hasChequeBook() {
         return chequeBookIssued;
-    }
-
-    private final double ANNUAL_FEE = 120.00;
-    private String businessType;
-    private LocalDate lastFeeAppliedDate;
-
-
-
-    // --- Loan methods ---
-
-    public void setLoanActive(boolean active) {
-        this.loanActive = active;
-    }
-
-    public void setLoanAmount(double amount) {
-        this.loanAmount = amount;
     }
 
     public void setChequeBookIssued(boolean issued) {
         this.chequeBookIssued = issued;
     }
 
+    // --- Loan methods ---
     public void requestLoan(double amount) {
+        if (amount <= 0) {
+            System.out.println("Loan amount must be greater than 0.");
+            return;
+        }
+
         if (loanActive) {
-            // simply increase existing loan
             loanAmount += amount;
             balance += amount;
-            System.out.println("Additional loan of £" + amount + " added. Total loan: £" + loanAmount);
-        } else if (amount <= 0) {
-            System.out.println("Loan amount must be greater than 0.");
+            System.out.println("Additional loan of £" + amount +
+                    " added. Total loan: £" + loanAmount);
         } else {
-            System.out.println("Loan of £" + amount + " approved and added to balance.");
             loanActive = true;
             loanAmount = amount;
-            balance += amount;  // simple simulation: add loan to balance
+            balance += amount;
+            System.out.println("Loan of £" + amount + " approved and added to balance.");
         }
     }
 
@@ -65,20 +64,58 @@ public class BusinessAccount extends Account {
         return loanAmount;
     }
 
-
-    protected String getSortCodeForType() {
-        return "60-70-70";
+    public void setLoanActive(boolean active) {
+        this.loanActive = active;
     }
 
+    public void setLoanAmount(double amount) {
+        this.loanAmount = amount;
+    }
+
+    // --- International payment ---
+    public void internationalPayment(double foreignAmount, double exchangeRate) {
+
+        if (foreignAmount <= 0 || exchangeRate <= 0) {
+            System.out.println("Invalid international payment values.");
+            return;
+        }
+
+        double gbpAmount = foreignAmount * exchangeRate;
+        double fee = gbpAmount * INTERNATIONAL_FEE_RATE;
+        double total = gbpAmount + fee;
+
+        withdraw(total);
+
+        internationalPayments.add(
+                new InternationalPayment(foreignAmount, exchangeRate)
+        );
+
+        System.out.println("International payment processed. Fee: £" +
+                String.format("%.2f", fee));
+    }
+
+    // Used ONLY when loading from CSV (no balance change)
+    public void loadInternationalPayment(InternationalPayment ip) {
+        internationalPayments.add(ip);
+    }
+
+    public List<InternationalPayment> getInternationalPayments() {
+        return internationalPayments;
+    }
+
+    // --- Annual fee ---
     @Override
     public void applyAnnualFee() {
         LocalDate today = LocalDate.now();
 
-        // Apply fee if never applied or last applied before this year
-        if (lastFeeAppliedDate == null || today.getYear() > lastFeeAppliedDate.getYear()) {
+        if (lastFeeAppliedDate == null ||
+                today.getYear() > lastFeeAppliedDate.getYear()) {
+
             balance -= ANNUAL_FEE;
             lastFeeAppliedDate = today;
-            IO.println("Business annual fee applied: " + String.format("£%.2f", ANNUAL_FEE));
+
+            IO.println("Business annual fee applied: " +
+                    String.format("£%.2f", ANNUAL_FEE));
         }
     }
 
@@ -88,9 +125,11 @@ public class BusinessAccount extends Account {
 
     public void setLastFeeAppliedDate(LocalDate date) {
         this.lastFeeAppliedDate = date;
+    }
 
-
-
-
-
-    }}
+    // --- Sort code ---
+    @Override
+    protected String getSortCodeForType() {
+        return "60-70-70";
+    }
+}
