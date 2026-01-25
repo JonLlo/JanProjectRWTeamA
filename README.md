@@ -5,7 +5,7 @@
 
 # SimpleBank - TEAM A
 
-This banking app, SimpleBank, was created to assist bank tellers with their day-to-day tasks by simplifying tasks and catching errors before they happen. These are the main features:
+This banking app, SimpleBank, was created to assist bank tellers with their day-to-day tasks by simplifying those tasks and catching errors before they happen. These are the main features of the app:
 
   ```bash
 ·	Create and authenticate customers
@@ -22,7 +22,7 @@ This banking app, SimpleBank, was created to assist bank tellers with their day-
 
 ## About
 
-Our app uses Java and was built on IntelliJ Idea. It will require JDK 8 or later. This is a group project for Robert Walters. 
+Our app uses Java and was built on IntelliJ Idea. It requires JDK 8 or later. This is a group project for Robert Walters. 
 
 ## Use
 
