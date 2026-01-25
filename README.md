@@ -50,13 +50,13 @@ Please see our in-depth User Guide for a full explanation of fees, authenticatio
 <img src="https://github.com/Anmol-Baranwal/Cool-GIFs-For-GitHub/assets/74038190/fa83eeb9-f4e2-4d85-93f0-688af11babf8" width="35">&nbsp;
 ## Responsibilities      
 
-After the framework for the app was laid out, we came up with a skeleton with classes and methods that would need to be written. Each person took a section of the skeleton to code. We then collaborated to make sure it worked correctly. 
+After the framework for the app was laid out, we came up with a skeleton for classes and methods that would need to be written. Each person took a section of the skeleton to code in Java, which you can see as a bullet-point in each person's description. We then collaborated to make sure it worked correctly. 
 
 ### Kevin 
 
 Technical Leader
 
-(Planning project layout/framework)
+(Project planning)
 
   ```bash
 Customer Data and Account
@@ -85,8 +85,6 @@ Testing
 ### Christina 
 
 Editor
-
-(Editing)
 
   ```bash
 Persistence and Logging
