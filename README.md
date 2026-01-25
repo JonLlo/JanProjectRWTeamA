@@ -22,7 +22,7 @@ This banking app, SimpleBank, was created to assist bank tellers with their day-
 
 ## About
 
-Our app uses Java and was built on IntelliJ Idea and will require JDK 8 or later. This is a group project for Robert Walters. 
+Our app uses Java and was built on IntelliJ Idea. It will require JDK 8 or later. This is a group project for Robert Walters. 
 
 ## Use
 
