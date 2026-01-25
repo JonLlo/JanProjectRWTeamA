@@ -3,7 +3,7 @@
 <br><br>
 
 
-# SIMPLEBANK - TEAM A
+# SimpleBank - TEAM A
 
 This banking app, SimpleBank, was created to assist bank tellers with their day-to-day tasks by simplifying tasks and catching errors before they happen. These are the main features:
 
