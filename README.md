@@ -91,7 +91,7 @@ Persistence and Logging
 Saving, loading and logging
 ·	saveDataToCSV(), loadDataFromCSV(), Logger, AccountNumberGenerator
 README 
-Editing User Guide
+Editing/ User Guide
 Testing
   ```
 ### Tolu
