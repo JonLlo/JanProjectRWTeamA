@@ -63,7 +63,8 @@ Customer Data and Account
 Core Banking Logic
 ·	CreateCustomer(), Account classes (Personal, ISA, Business), Customer Class
 Visual Paradigm
-Test cases and assumptions
+Assumptions
+Test case layout
   ```
 
 
@@ -91,7 +92,7 @@ Persistence and Logging
 Saving, loading and logging
 ·	saveDataToCSV(), loadDataFromCSV(), Logger, AccountNumberGenerator
 README 
-Editing/ User Guide
+User Guide
 Testing
   ```
 ### Tolu
