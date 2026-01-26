@@ -33,7 +33,7 @@ To start the program, open SimpleBank.java and run SimpleBank.main()
 This will start it in the console. 
 
 Bank_data.csv and Bank_log.txt will be created. The first will store customers and their accounts, while the other keeps system timestamps. 
-All personal accounts require a default balance of £1 and a 6-digit sort code of 60-60-60, and customers can have multiple accounts. ISA accounts are limited to one per customer and have a 60-60-70 sort code with an annual interest that is applied. Business accounts have a 60-70-70 sort code and are also limited to one per customer with an annual customer fee. 
+All personal accounts require a default balance of £1.00 and a 6-digit sort code of 60-60-60, and customers can have multiple accounts. ISA accounts are limited to one per customer and have a 60-60-70 sort code with an annual interest that is applied. Business accounts have a 60-70-70 sort code and are also limited to one per customer with an annual customer fee. 
 
 Please see our in-depth User Guide for a full explanation of fees, authentication, interest and prerequisites for each type of account.
 
