@@ -64,7 +64,7 @@ Core Banking Logic
 ·	CreateCustomer(), Account classes (Personal, ISA, Business), Customer Class
 Visual Paradigm
 Assumptions
-Test case layout
+Test cases layout
   ```
 
 
