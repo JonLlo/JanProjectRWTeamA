@@ -606,14 +606,19 @@ public class BankSystem {
             if (selectedAccount == null) {
                 IO.println("Account not found.");
             } else {
-                IO.print("Enter deposit amount: ");
 
-                double amount;
-                try {
-                    amount = Double.parseDouble(this.helpOnInput());
-                } catch (NumberFormatException var6) {
-                    IO.println("Invalid amount.");
-                    return;
+                double amount = 0;
+                while (amount <= 0) {
+                    IO.print("Enter deposit amount: (£): ");
+
+                    try {
+                        amount = Double.parseDouble(helpOnInput());
+                        if (amount <= 0) {
+                            IO.println("Error: Amount must be greater than zero.");
+                        }
+                    } catch (NumberFormatException e) {
+                        IO.println("Error: Please enter a valid amount.");
+                    }
                 }
 
                 selectedAccount.deposit(amount);
