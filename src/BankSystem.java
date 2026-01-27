@@ -595,7 +595,7 @@ public class BankSystem {
         Account account = loggedInCustomer.getAccount(accountNumber);
 
         if (!(account instanceof BusinessAccount businessAccount)) {
-            IO.println("International payments are only available for Business Accounts.");
+            IO.println("International payments, loans and Cheque Books are only available for Business Accounts.");
             return;
         }
 
