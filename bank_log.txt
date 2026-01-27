@@ -185,3 +185,32 @@
 [2026-01-27 14:10:23] Success: 1
 [2026-01-27 14:14:27] Failed authentication: 
 [2026-01-27 14:14:42] Success: 1
+[2026-01-27 14:25:10] Failed authentication: 
+[2026-01-27 14:25:18] Success: 1
+[2026-01-27 14:29:32] Failed authentication: 
+[2026-01-27 14:30:47] NEW CUSTOMER CREATED: 
+[2026-01-27 14:32:58] Success: 
+[2026-01-27 14:38:50] NEW CUSTOMER CREATED: 2
+[2026-01-27 14:39:45] NEW CUSTOMER CREATED: 
+[2026-01-27 14:40:36] Failed authentication: 1
+[2026-01-27 14:40:40] Failed authentication: 1
+[2026-01-27 14:40:44] NEW CUSTOMER CREATED: 1
+[2026-01-27 14:40:47] Success: 1
+[2026-01-27 14:42:15] ACCOUNT CREATED: 20966131
+[2026-01-27 14:42:28] WITHDRAW £11.0 FROM 20966131
+[2026-01-27 14:42:39] ACCOUNT CREATED: 74811622
+[2026-01-27 14:42:54] WITHDRAW £1.0 FROM 74811622
+[2026-01-27 14:45:44] Failed authentication: 1
+[2026-01-27 14:45:50] NEW CUSTOMER CREATED: 1
+[2026-01-27 14:46:05] Success: 1
+[2026-01-27 14:46:25] Success: 1
+[2026-01-27 14:59:08] Failed authentication: 
+[2026-01-27 14:59:15] Failed authentication: 23
+[2026-01-27 14:59:18] Success: 1
+[2026-01-27 15:02:49] Failed authentication: e
+[2026-01-27 15:03:00] NEW CUSTOMER CREATED: 
+[2026-01-27 15:04:29] Failed authentication: 1
+[2026-01-27 15:04:34] Failed authentication: 1
+[2026-01-27 15:04:43] NEW CUSTOMER CREATED: 1
+[2026-01-27 15:05:23] Failed authentication: 
+[2026-01-27 15:05:26] Success: 1

@@ -60,7 +60,7 @@ public class BankSystem {
 
             IO.print("Enter Option number: ");
 
-            String menuChoice = helpOnInput();
+            String menuChoice = helpOnInput("Enter Option number: ");
 
             switch (menuChoice) {
                 case "1":
@@ -81,8 +81,8 @@ public class BankSystem {
     private void authenticateCustomer() {
         //Jonny
         helpContext = HelpContext.CUSTOMER_MENU;
-        IO.println("Please enter your customer ID:");
-        String customerId = helpOnInput();
+        IO.println("Please enter your customer ID: ");
+        String customerId = helpOnInput("Please enter your customer ID: ");
         if (!this.customerMap.containsKey(customerId)) {
             IO.println("Customer ID does not exist.");
 
@@ -103,7 +103,7 @@ public class BankSystem {
     }
     private void createCustomer() {
         IO.print("Enter Customer ID: ");
-        String customerId = helpOnInput();
+        String customerId = helpOnInput("Enter Customer ID: ");
 
         if (customerMap.containsKey(customerId)) {
             IO.println("Customer ID already exists.");
@@ -111,14 +111,14 @@ public class BankSystem {
         }
 
         IO.print("Enter Customer Name: ");
-        String customerName = helpOnInput();
+        String customerName = helpOnInput("Enter Customer Name: ");
 
         customerMap.put(customerId, new Customer(customerId, customerName));
         Logger.log("NEW CUSTOMER CREATED: " + customerId);
         IO.println("Customer created successfully.");
         saveDataToCSV();
     }
-    private String helpOnInput() {
+    private String helpOnInput(String prompt) {
         while (true) {
             String input = inputScanner.nextLine().trim();
 
@@ -133,8 +133,7 @@ public class BankSystem {
                     case OPEN_ACCOUNT -> showOpenAccountHelp();
                     case PAYMENTS -> showPaymentsHelp();
                 }
-
-
+                IO.print(prompt); // ← REPRINT THE ORIGINAL PROMPT
                 continue;
 
 
@@ -165,13 +164,20 @@ public class BankSystem {
 
     }
     private void showPaymentsHelp() {
-        IO.println("\n=== HELP: DIRECT DEBITS & STANDING ORDERS ===");
+        IO.println("\n=== HELP: DIRECT DEBITS, STANDING ORDERS & INTERNATIONAL PAYMENTS ===");
+
+        IO.println("\n-- Personal Accounts --");
         IO.println("- Add/View Direct Debits: only positive amounts, requires a name.");
         IO.println("- Add/View Standing Orders: only positive amounts, requires a name.");
 
-        IO.println("\nPress Enter to return...");
-        inputScanner.nextLine();
+        IO.println("\n-- Business Accounts --");
+        IO.println("- International Payments: send funds abroad.");
+        IO.println("  • Enter the foreign amount and the exchange rate to GBP.");
+        IO.println("  • Only available for Business Accounts.");
+        IO.println("  • Transactions are logged with timestamps.");
 
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();  // leave commented; helpOnInput() handles re-prompt
     }
     private void showOpenAccountHelp() {
         IO.println("\n=== HELP: OPEN ACCOUNT ===");
@@ -400,19 +406,12 @@ public class BankSystem {
         helpContext = HelpContext.CUSTOMER_MENU;
         boolean stayInCustomerMenu = true;
         while (stayInCustomerMenu) {
-            IO.println("\n=== CUSTOMER MENU ===");
-            IO.println("1. View Accounts");
-            IO.println("2. Open Account");
-            IO.println("3. Deposit");
-            IO.println("4. Withdraw");
-            IO.println("5. Direct Debit / Standing Order (Personal Accounts only)");
-            IO.println("6. Loans / Cheque Books (Business Accounts only)");
-            IO.println("7. International Payment (Business)");
-            IO.println("8. Help");
-            IO.println("9. Switch Customer");
+            String prompt = "\n=== CUSTOMER MENU ===\n" + "1. View Accounts\n" + "2. Open Account\n" + "3. Deposit\n" +
+                    "4. Withdraw\n" + "5. Direct Debit / Standing Order (Personal Accounts only)\n" + "6. Loans / Cheque Books (Business Accounts only)\n" +
+                    "7. International Payment (Business)\n" + "8. Help\n" + "9. Switch Customer\n" + "Enter choice: ";
 
-
-            String choice = helpOnInput();
+            IO.print(prompt);
+            String choice = helpOnInput(prompt);
 
             switch (choice) {
 
@@ -437,28 +436,29 @@ public class BankSystem {
                     helpContext = HelpContext.PAYMENTS;
                     managePayments(); break;
                 case "6":
-                    helpContext = HelpContext.CHEQUEBOOK; // this is fine
 
                     while (true) {
-                        IO.println("\nDo you want to take out a loan or a cheque book?");
-                        IO.println("1. Loan");
-                        IO.println("2. Cheque Book");
-                        IO.print("Enter choice (1 or 2): ");
+                        helpContext = HelpContext.CHEQUEBOOK;
+                        String chequePrompt =
+                                "\nDo you want to take out a loan or a cheque book?\n" +
+                                        "1. Loan\n" +
+                                        "2. Cheque Book\n" +
+                                        "Enter choice (1 or 2): ";
 
-                        String loanChoice = helpOnInput();
 
+                        IO.print(chequePrompt);
+                        String loanChoice = helpOnInput(chequePrompt);
+                        if (loanChoice.equalsIgnoreCase("help")) continue;
                         switch (loanChoice) {
-                            case "1":
-                                manageLoan();
-                                return; // exit this block and return to customerMenu
-                            case "2":
-                                manageChequeBooks();
-                                return; // exit this block and return to customerMenu
+                            case "1": manageLoan(); break;
+                            case "2": manageChequeBooks(); break;
                             default:
                                 IO.println("Invalid choice. Please try again.");
-                                // no break/return → loop repeats
+                                continue;
                         }
+                        break; // exit loop after valid choice
                     }
+
                 case "7": performInternationalPayment(); break;
                 case "8": showCustomerHelp(); break;
                 case "9": stayInCustomerMenu = false; break;
@@ -490,67 +490,75 @@ public class BankSystem {
     private void openNewAccount() {
         helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
         IO.println("1. Personal  2. ISA  3. Business");
-        String accountChoice = this.helpOnInput();
+
+        String accountChoice = "";
+        while (true) {
+            accountChoice = helpOnInput("1. Personal  2. ISA  3. Business");
+            if (accountChoice.equals("1") || accountChoice.equals("2") || accountChoice.equals("3")) break;
+            IO.println("Invalid choice. Enter 1, 2, or 3.");
+        }
+
         Account newAccount = null;
-        if (accountChoice.equals("1")) {
-            IO.println("To open a Personal Account, you must have:");
 
-            IO.print("Do you have a Photo ID (passport or driving licence)? (y/n): ");
-            String photoId = helpOnInput();
-            if (!photoId.equalsIgnoreCase("y")) {
-                IO.println("Cannot open Personal Account without Photo ID. Account creation cancelled.");
-                return;
+        if (accountChoice.equals("1")) {  // Personal
+            // Photo ID
+            while (true) {
+                IO.print("Do you have a Photo ID (passport or driving licence)? (y/n): ");
+                String photoId = helpOnInput("Do you have a Photo ID (passport or driving licence)? (y/n): ");
+                if (photoId.equalsIgnoreCase("y")) break;
+                if (photoId.equalsIgnoreCase("n")) {
+                    IO.println("Cannot open Personal Account without Photo ID. Account creation cancelled.");
+                    return;
+                }
+                IO.println("Please enter y or n.");
             }
 
-            IO.print("Do you have an Address ID (utility bill or council tax letter)? (y/n): ");
-            String addressId = helpOnInput();
-            if (!addressId.equalsIgnoreCase("y")) {
-                IO.println("Cannot open Personal Account without Address ID. Account creation cancelled.");
-                return;
+            // Address ID
+            while (true) {
+                IO.print("Do you have an Address ID (utility bill or council tax letter)? (y/n): ");
+                String addressId = helpOnInput("Do you have an Address ID (utility bill or council tax letter)? (y/n): ");
+                if (addressId.equalsIgnoreCase("y")) break;
+                if (addressId.equalsIgnoreCase("n")) {
+                    IO.println("Cannot open Personal Account without Address ID. Account creation cancelled.");
+                    return;
+                }
+                IO.println("Please enter y or n.");
             }
 
-            // Ask for opening balance ≥ £1
+            // Opening balance ≥ £1
             double openingBalance = 0.0;
             while (openingBalance < 1.0) {
                 IO.print("Enter opening balance (£, minimum £1): ");
                 try {
-                    openingBalance = Double.parseDouble(helpOnInput());
+                    openingBalance = Double.parseDouble(helpOnInput("Enter opening balance (£, minimum £1): "));
+                    if (openingBalance < 1.0) IO.println("Opening balance must be at least £1.");
                 } catch (NumberFormatException e) {
                     IO.println("Invalid input. Please enter a number.");
                 }
-                if (openingBalance < 1.0) {
-                    IO.println("Opening balance must be at least £1.");
-                }
             }
 
-            // Create the account
             newAccount = new PersonalAccount();
             newAccount.balance = openingBalance;
-        }
-        else if (accountChoice.equals("2")) {
+
+        } else if (accountChoice.equals("2")) {  // ISA
             if (this.loggedInCustomer.hasISA()) {
                 IO.println("ISA already exists.");
                 return;
             }
+            newAccount = new IsaAccount();
 
-            newAccount = new IsaAccount(); }
-        else {
-            if (!accountChoice.equals("3")) {
-                IO.println("Invalid account type.");
-                return;
-            }
-
+        } else {  // Business
             if (this.loggedInCustomer.hasBusiness()) {
                 IO.println("Business account already exists.");
                 return;
             }
 
-            IO.println("Enter business type (SOLE_TRADER / LIMITED): ");
-            String businessType = this.inputScanner.nextLine().toUpperCase();
-            if (!ALLOWED_BUSINESS_TYPES.contains(businessType)) {
-                IO.println("Business type not supported.");
-                IO.println("Allowed types: SOLE_TRADER, LIMITED");
-                return;
+            String businessType = "";
+            while (true) {
+                IO.print("Enter business type (SOLE_TRADER / LIMITED): ");
+                businessType = helpOnInput("\"Enter business type (SOLE_TRADER / LIMITED): \"").toUpperCase();
+                if (ALLOWED_BUSINESS_TYPES.contains(businessType)) break;
+                IO.println("Business type not supported. Allowed types: SOLE_TRADER, LIMITED");
             }
 
             newAccount = new BusinessAccount();
@@ -563,11 +571,12 @@ public class BankSystem {
         this.saveDataToCSV();
     }
 
+
     private void performInternationalPayment() {
+        helpContext = HelpContext.PAYMENTS;
 
         IO.print("Enter business account number: ");
-        String accountNumber = inputScanner.nextLine();
-
+        String accountNumber = helpOnInput("Enter business account number: ");  // use helpOnInput here
         Account account = loggedInCustomer.getAccount(accountNumber);
 
         if (!(account instanceof BusinessAccount businessAccount)) {
@@ -578,7 +587,7 @@ public class BankSystem {
         IO.print("Enter foreign amount: ");
         double foreignAmount;
         try {
-            foreignAmount = Double.parseDouble(inputScanner.nextLine());
+            foreignAmount = Double.parseDouble(helpOnInput("Enter foreign amount: "));  // replaced nextLine() with helpOnInput()
         } catch (NumberFormatException e) {
             IO.println("Invalid amount.");
             return;
@@ -587,7 +596,7 @@ public class BankSystem {
         IO.print("Enter exchange rate to GBP: ");
         double exchangeRate;
         try {
-            exchangeRate = Double.parseDouble(inputScanner.nextLine());
+            exchangeRate = Double.parseDouble(helpOnInput("Enter exchange rate to GBP: "));  // replaced nextLine() with helpOnInput()
         } catch (NumberFormatException e) {
             IO.println("Invalid exchange rate.");
             return;
@@ -595,8 +604,11 @@ public class BankSystem {
 
         businessAccount.internationalPayment(foreignAmount, exchangeRate);
 
+        IO.println("International payment successful.");
         saveDataToCSV(); // persist balance change
+        Logger.log("INTERNATIONAL PAYMENT £" + foreignAmount + " INTO " + businessAccount.getAccountNumber());
     }
+
 
 
     private void performDeposit () {
@@ -620,7 +632,7 @@ public class BankSystem {
             }
 
             IO.print("Enter account number to deposit into: ");
-            String enteredAccountNumber = this.helpOnInput();
+            String enteredAccountNumber = this.helpOnInput("Enter account number to deposit into: ");
             Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
             if (selectedAccount == null) {
                 IO.println("Account not found.");
@@ -631,7 +643,7 @@ public class BankSystem {
                     IO.print("Enter deposit amount: (£): ");
 
                     try {
-                        amount = Double.parseDouble(helpOnInput());
+                        amount = Double.parseDouble(helpOnInput("Enter deposit amount: (£): "));
                         if (amount <= 0) {
                             IO.println("Error: Amount must be greater than zero.");
                         }
@@ -669,7 +681,7 @@ public class BankSystem {
             }
 
             IO.print("Enter account number to withdraw from: ");
-            String enteredAccountNumber = this.helpOnInput();
+            String enteredAccountNumber = this.helpOnInput("Enter account number to withdraw from: ");
             Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
             if (selectedAccount == null) {
                 IO.println("Account not found.");
@@ -678,7 +690,7 @@ public class BankSystem {
 
                 double amount;
                 try {
-                    amount = Double.parseDouble(this.helpOnInput());
+                    amount = Double.parseDouble(this.helpOnInput("Enter withdrawal amount: "));
                 } catch (NumberFormatException var6) {
                     IO.println("Invalid amount.");
                     return;
@@ -714,7 +726,7 @@ public class BankSystem {
             }
             IO.print("Enter account number to withdraw from (personal accounts only): ");
 
-            String accountNumber = helpOnInput();
+            String accountNumber = helpOnInput("Enter account number to withdraw from (personal accounts only): ");
 
             Account userAccount = loggedInCustomer.getAccount(accountNumber);
 
@@ -725,14 +737,10 @@ public class BankSystem {
                 return;
             }
 
-            IO.println("\n=== DIRECT DEBITS & STANDING ORDERS ===");
-            IO.println("1. Add Direct Debit");
-            IO.println("2. View Direct Debits");
-            IO.println("3. Add Standing Order");
-            IO.println("4. View Standing Orders");
-            IO.println("5. Back");
+            String prompt = "\n=== DIRECT DEBITS & STANDING ORDERS ===\n" + "1. Add Direct Debit\n" + "2. View Direct Debits\n" +
+                    "3. Add Standing Order\n" + "4. View Standing Orders\n" + "5. Back\n" + "Enter choice: ";
 
-            switch (helpOnInput()) {
+            switch (helpOnInput(prompt)) {
                 case "1": addDirectDebit(personalAccount); break;
                 case "2": personalAccount.viewDirectDebits(); break;
                 case "3": addStandingOrder(personalAccount); break;
@@ -756,14 +764,16 @@ public class BankSystem {
         }
 
         // Ask teller which account to use
-        IO.print("Enter account number to issue a cheque book (Business accounts only): ");
-        String enteredAccountNumber = this.helpOnInput();
+        Account selectedAccount = null;
+        while (selectedAccount == null) {
+            IO.print("Enter account number to issue a cheque book (Business accounts only): ");
+            String enteredAccountNumber = this.helpOnInput("Enter account number to issue a cheque book (Business accounts only): ");
+            if (enteredAccountNumber.equalsIgnoreCase("help")) continue;
 
-        Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
-
-        if (selectedAccount == null) {
-            IO.println("Account not found.");
-            return;
+            selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+            if (selectedAccount == null) {
+                IO.println("Account not found. Please try again.");
+            }
         }
 
         // Check if it’s a BusinessAccount
@@ -800,14 +810,16 @@ public class BankSystem {
         }
 
         // Ask teller which account to use
-        IO.print("Enter account number to request a loan (Business accounts only): ");
-        String enteredAccountNumber = this.helpOnInput();
+        Account selectedAccount = null;
+        while (selectedAccount == null) {
+            IO.print("Enter account number to request a loan (Business accounts only): ");
+            String enteredAccountNumber = this.helpOnInput("Enter account number to request a loan (Business accounts only): ");
+            if (enteredAccountNumber.equalsIgnoreCase("help")) continue;
 
-        Account selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
-
-        if (selectedAccount == null) {
-            IO.println("Account not found.");
-            return;
+            selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
+            if (selectedAccount == null) {
+                IO.println("Account not found. Please try again.");
+            }
         }
 
         // Check if it’s a BusinessAccount
@@ -824,13 +836,18 @@ public class BankSystem {
         }
 
         // Ask teller for loan amount
-        IO.print("Enter loan amount: ");
-        double amount;
-        try {
-            amount = Double.parseDouble(this.helpOnInput());
-        } catch (NumberFormatException e) {
-            IO.println("Invalid amount entered.");
-            return;
+        double amount = -1;
+        while (amount <= 0) {
+            IO.print("Enter loan amount: ");
+            String input = this.helpOnInput("Enter loan amount: ");
+            if (input.equalsIgnoreCase("help")) continue;
+
+            try {
+                amount = Double.parseDouble(input);
+                if (amount <= 0) IO.println("Loan amount must be greater than 0.");
+            } catch (NumberFormatException e) {
+                IO.println("Invalid amount entered.");
+            }
         }
 
         if (amount <= 0) {
@@ -852,7 +869,7 @@ public class BankSystem {
         //Input Validation
         while (debitName.trim().isEmpty()) {
             IO.print("Enter Debit name: ");
-            debitName = helpOnInput();
+            debitName = helpOnInput("Enter Debit name: ");
 
             if (debitName.trim().isEmpty()) {
                 IO.println("Debit name cannot be empty.");
@@ -864,7 +881,7 @@ public class BankSystem {
             IO.print("Enter Debit amount (£): ");
 
             try {
-                debitAmount = Double.parseDouble(helpOnInput());
+                debitAmount = Double.parseDouble(helpOnInput("Enter Debit amount (£): "));
                 if (debitAmount <= 0) {
                     IO.println("Error: Debit amount must be greater than zero.");
                 }
@@ -875,7 +892,7 @@ public class BankSystem {
 
         // Are you sure?
         IO.print("You are about to add a Direct Debit of " + debitAmount + " to " + debitName + ". Are you sure? (y/n): ");
-        String confirmation = helpOnInput();
+        String confirmation = helpOnInput("You are about to add a Direct Debit of " + debitAmount + " to " + debitName + ". Are you sure? (y/n): ");
 
         if (!confirmation.equalsIgnoreCase("y")) {
             IO.println("Direct Debit cancelled.");
@@ -892,7 +909,7 @@ public class BankSystem {
         //Input Validation
         while (orderName.trim().isEmpty()) {
             IO.print("Enter Standing Order name: ");
-            orderName = helpOnInput();
+            orderName = helpOnInput("Enter Standing Order name: ");
 
             if (orderName.trim().isEmpty()) {
                 IO.println("Standing Order name cannot be empty.");
@@ -903,7 +920,7 @@ public class BankSystem {
         while (orderAmount <= 0) {
             IO.print("Enter Standing Order amount (£): ");
             try {
-                orderAmount = Double.parseDouble(helpOnInput());
+                orderAmount = Double.parseDouble(helpOnInput(("Enter Standing Order amount (£): ")));
                 if (orderAmount <= 0) {
                     IO.println("Error: Amount must be greater than zero.");
                 }
@@ -913,7 +930,7 @@ public class BankSystem {
         }
         // Are you sure?
         IO.print("You are about to add a Standing Order of " + orderAmount + " to " + orderName + ". Are you sure? (y/n): ");
-        String confirmation = helpOnInput();
+        String confirmation = helpOnInput("You are about to add a Standing Order of " + orderAmount + " to " + orderName + ". Are you sure? (y/n): ");
 
         if (!confirmation.equalsIgnoreCase("y")) {
             IO.println("Standing Order cancelled.");
