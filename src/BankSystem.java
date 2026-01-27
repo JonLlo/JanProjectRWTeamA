@@ -21,7 +21,8 @@ public class BankSystem {
         WITHDRAW,
         OPEN_ACCOUNT,
         PAYMENTS,
-        CHEQUEBOOK
+        CHEQUEBOOK,
+        INT_PAYMENTS
     }
 
     private HelpContext helpContext = HelpContext.MAIN_MENU;
@@ -49,18 +50,14 @@ public class BankSystem {
         helpContext = HelpContext.MAIN_MENU;
         boolean running = true;
         while (running) {
-            IO.println("=== MAIN MENU ===");
-            IO.println("Please select an option:");
-            IO.println("1. Authenticate Customer");
-            IO.println("2. Create New Customer");
-            IO.println("3. Help");
-            IO.println("4. Exit");
 
-            IO.println("Tip: You can type help at any time for assistance.");
 
-            IO.print("Enter Option number: ");
+            String mainMenuPrompt = "=== MAIN MENU ===\n" + "Please select an option:\n" + "1. Authenticate Customer\n" +
+                    "2. Create New Customer\n" + "3. Help\n" + "4. Exit\n" + "\nTip: You can type help at any time for" +
+                    " assistance.\n" + "Enter Option number: ";
+            IO.print(mainMenuPrompt);
 
-            String menuChoice = helpOnInput("Enter Option number: ");
+            String menuChoice = helpOnInput(mainMenuPrompt);
 
             switch (menuChoice) {
                 case "1":
@@ -132,6 +129,7 @@ public class BankSystem {
                     case CHEQUEBOOK -> showChequeBookHelp();
                     case OPEN_ACCOUNT -> showOpenAccountHelp();
                     case PAYMENTS -> showPaymentsHelp();
+                    case INT_PAYMENTS -> showIntPaymentsHelp();
                 }
                 IO.print(prompt); // ← REPRINT THE ORIGINAL PROMPT
                 continue;
@@ -164,7 +162,7 @@ public class BankSystem {
 
     }
     private void showPaymentsHelp() {
-        IO.println("\n=== HELP: DIRECT DEBITS, STANDING ORDERS & INTERNATIONAL PAYMENTS ===");
+        IO.println("\n=== HELP: DIRECT DEBITS & STANDING ORDERS ===");
 
         IO.println("\n-- Personal Accounts --");
         IO.println("- Add/View Direct Debits: only positive amounts, requires a name.");
@@ -177,8 +175,20 @@ public class BankSystem {
         IO.println("  • Transactions are logged with timestamps.");
 
         IO.println("\nPress Enter to return...");
-        inputScanner.nextLine();  // leave commented; helpOnInput() handles re-prompt
+        inputScanner.nextLine();
     }
+    private void showIntPaymentsHelp() {
+        IO.println("\n=== HELP: INTERNATIONAL PAYMENTS ===");
+
+        IO.println("\n-- Business Accounts --");
+        IO.println("- International Payments: send funds abroad.");
+        IO.println("  • Enter the foreign amount and the exchange rate to GBP.");
+        IO.println("  • Only available for Business Accounts.");
+        IO.println("  • Transactions are logged with timestamps.");
+
+        IO.println("\nPress Enter to return...");
+        inputScanner.nextLine();
+    };
     private void showOpenAccountHelp() {
         IO.println("\n=== HELP: OPEN ACCOUNT ===");
         IO.println("- Personal Account: min £1, multiple allowed, requires ID validation.");
@@ -199,7 +209,6 @@ public class BankSystem {
         IO.println("\nPress Enter to return...");
         inputScanner.nextLine();
     }
-
     private void showDepositHelp() {
         IO.println("\n=== HELP: DEPOSIT ===");
         IO.println("- Select an account by account number.");
@@ -406,9 +415,10 @@ public class BankSystem {
         helpContext = HelpContext.CUSTOMER_MENU;
         boolean stayInCustomerMenu = true;
         while (stayInCustomerMenu) {
+            helpContext = HelpContext.CUSTOMER_MENU;
             String prompt = "\n=== CUSTOMER MENU ===\n" + "1. View Accounts\n" + "2. Open Account\n" + "3. Deposit\n" +
                     "4. Withdraw\n" + "5. Direct Debit / Standing Order (Personal Accounts only)\n" + "6. Loans / Cheque Books (Business Accounts only)\n" +
-                    "7. International Payment (Business)\n" + "8. Help\n" + "9. Switch Customer\n" + "Enter choice: ";
+                    "7. International Payment (Business Accounts only)\n" + "8. Help\n" + "9. Switch Customer\n" + "Enter choice: ";
 
             IO.print(prompt);
             String choice = helpOnInput(prompt);
@@ -459,7 +469,9 @@ public class BankSystem {
                         break; // exit loop after valid choice
                     }
 
-                case "7": performInternationalPayment(); break;
+                case "7":
+                    helpContext = HelpContext.INT_PAYMENTS;
+                    performInternationalPayment(); break;
                 case "8": showCustomerHelp(); break;
                 case "9": stayInCustomerMenu = false; break;
             }
@@ -573,8 +585,11 @@ public class BankSystem {
 
 
     private void performInternationalPayment() {
-        helpContext = HelpContext.PAYMENTS;
-
+        helpContext = HelpContext.INT_PAYMENTS;
+        IO.println("Available accounts:");
+        for (Account account : this.loggedInCustomer.getAccounts().values()) {
+            IO.println(account.toString());
+        }
         IO.print("Enter business account number: ");
         String accountNumber = helpOnInput("Enter business account number: ");  // use helpOnInput here
         Account account = loggedInCustomer.getAccount(accountNumber);
@@ -724,7 +739,7 @@ public class BankSystem {
             for (Account account : this.loggedInCustomer.getAccounts().values()) {
                 IO.println(account.toString());
             }
-            IO.print("Enter account number to withdraw from (personal accounts only): ");
+            IO.print("Enter account number to access (Personal Accounts only) ");
 
             String accountNumber = helpOnInput("Enter account number to withdraw from (personal accounts only): ");
 
@@ -739,14 +754,14 @@ public class BankSystem {
 
             String prompt = "\n=== DIRECT DEBITS & STANDING ORDERS ===\n" + "1. Add Direct Debit\n" + "2. View Direct Debits\n" +
                     "3. Add Standing Order\n" + "4. View Standing Orders\n" + "5. Back\n" + "Enter choice: ";
-
+            IO.print(prompt);
             switch (helpOnInput(prompt)) {
                 case "1": addDirectDebit(personalAccount); break;
                 case "2": personalAccount.viewDirectDebits(); break;
                 case "3": addStandingOrder(personalAccount); break;
                 case "4": personalAccount.viewStandingOrders(); break;
                 case "5": return;
-                default: IO.println("Invalid choice 1.");
+                default: IO.println("Invalid choice");
             }
         }}
     private void manageChequeBooks() {
@@ -772,7 +787,9 @@ public class BankSystem {
 
             selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
             if (selectedAccount == null) {
-                IO.println("Account not found. Please try again.");
+                IO.println("Account not found.");
+                return;
+
             }
         }
 
@@ -818,7 +835,8 @@ public class BankSystem {
 
             selectedAccount = this.loggedInCustomer.getAccount(enteredAccountNumber);
             if (selectedAccount == null) {
-                IO.println("Account not found. Please try again.");
+                IO.println("Account not found.");
+                return;
             }
         }
 
