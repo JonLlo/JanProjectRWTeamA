@@ -63,9 +63,15 @@ public class BankSystem {
             String menuChoice = helpOnInput();
 
             switch (menuChoice) {
-                case "1": authenticateCustomer(); break;
-                case "2": createCustomer(); break;
-                case "3": showMainHelp(); break;
+                case "1":
+                    helpContext = HelpContext.CUSTOMER_MENU;
+                    authenticateCustomer(); break;
+                case "2":
+                    helpContext = HelpContext.CUSTOMER_MENU;
+                    createCustomer(); break;
+                case "3":
+                    helpContext = HelpContext.MAIN_MENU;
+                    showMainHelp(); break;
                 case "4": IO.println("saveDataToCSV()"); running = false; break;
                 //default: IO.println("Invalid choice 2.");
             }
@@ -128,10 +134,9 @@ public class BankSystem {
                     case PAYMENTS -> showPaymentsHelp();
                 }
 
-                // Pause **only after showing help**
 
+                continue;
 
-                // Loop back to ask for input again
 
             }
 
@@ -418,28 +423,42 @@ public class BankSystem {
 
 
                 //"ViewAccounts" method needs to be defined in customer class.
-                case "2": openNewAccount(); break;
-                case "3":  performDeposit(); break;
-                case "4":  performWithdrawal(); break;
-                case "5": managePayments(); break;
-                case "6":
-                    IO.println("Do you want to take out a loan or a cheque book?");
-                    IO.println("1. Loan");
-                    IO.println("2. Cheque Book");
-                    IO.print("Enter choice (1 or 2): ");
-                    String loanChoice = this.helpOnInput();
+                case "2":
+                    helpContext = HelpContext.OPEN_ACCOUNT;
+                    openNewAccount(); break;
+                case "3":
+                    helpContext = HelpContext.DEPOSIT;
 
-                    switch (loanChoice) {
-                        case "1":
-                            manageLoan();       // Call your loan handling method
-                            break;
-                        case "2":
-                            manageChequeBooks(); // Call your cheque book handling method
-                            break;
-                        default:
-                            IO.println("Invalid choice. Returning to customer menu.");
+                    performDeposit(); break;
+                case "4":
+                    helpContext = HelpContext.WITHDRAW;
+                    performWithdrawal(); break;
+                case "5":
+                    helpContext = HelpContext.PAYMENTS;
+                    managePayments(); break;
+                case "6":
+                    helpContext = HelpContext.CHEQUEBOOK; // this is fine
+
+                    while (true) {
+                        IO.println("\nDo you want to take out a loan or a cheque book?");
+                        IO.println("1. Loan");
+                        IO.println("2. Cheque Book");
+                        IO.print("Enter choice (1 or 2): ");
+
+                        String loanChoice = helpOnInput();
+
+                        switch (loanChoice) {
+                            case "1":
+                                manageLoan();
+                                return; // exit this block and return to customerMenu
+                            case "2":
+                                manageChequeBooks();
+                                return; // exit this block and return to customerMenu
+                            default:
+                                IO.println("Invalid choice. Please try again.");
+                                // no break/return → loop repeats
+                        }
                     }
-                    break;
                 case "7": performInternationalPayment(); break;
                 case "8": showCustomerHelp(); break;
                 case "9": stayInCustomerMenu = false; break;
@@ -471,7 +490,7 @@ public class BankSystem {
     private void openNewAccount() {
         helpContext = HelpContext.OPEN_ACCOUNT;  // before opening account
         IO.println("1. Personal  2. ISA  3. Business");
-        String accountChoice = this.inputScanner.nextLine();
+        String accountChoice = this.helpOnInput();
         Account newAccount = null;
         if (accountChoice.equals("1")) {
             IO.println("To open a Personal Account, you must have:");
