@@ -468,6 +468,7 @@ public class BankSystem {
                         }
                         break; // exit loop after valid choice
                     }
+                    break;
 
                 case "7":
                     helpContext = HelpContext.INT_PAYMENTS;
@@ -842,7 +843,7 @@ public class BankSystem {
 
         // Check if it’s a BusinessAccount
         if (!(selectedAccount instanceof BusinessAccount)) {
-            IO.println("Loans can only be requested for business accounts.");
+            IO.println("International payments, loans and Cheque Books are only available for Business Accounts.");
             return;
         }
 
